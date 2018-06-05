@@ -25,4 +25,23 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+    //firebase UI Auth
+    implementation 'com.firebaseui:firebase-ui-auth:4.0.1'
+
+    //Circle image view
+    implementation 'de.hdodenhof:circleimageview:2.2.0'
+
+    //Firebase
+    implementation 'com.google.firebase:firebase-database:16.0.1' //Real time Database
+    implementation 'com.google.firebase:firebase-storage:16.0.1' //Storage
+
+    //Glide
+    implementation 'com.github.bumptech.glide:glide:4.6.1'
+
+    //Image compressor
+    implementation 'id.zelory:compressor:2.1.0'
+
+
 }
+apply plugin: 'com.google.gms.google-services'
