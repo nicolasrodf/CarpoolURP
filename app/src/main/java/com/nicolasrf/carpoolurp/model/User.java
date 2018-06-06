@@ -14,7 +14,8 @@ public class User {
     public String name;
     public String phone;
     public String avatarUrl;
-    public String rates;
+    public String rates; //1 - 5
+    public String userMode; //driver or rider
 
     public User() {
     }
@@ -74,5 +75,13 @@ public class User {
 
     public void setRates(String rates) {
         this.rates = rates;
+    }
+
+    public String getUserMode() {
+        return userMode;
+    }
+
+    public void setUserMode(String userMode) {
+        this.userMode = userMode;
     }
 }
