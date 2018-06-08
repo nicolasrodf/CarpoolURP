@@ -1,5 +1,6 @@
 package com.nicolasrf.carpoolurp;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -69,7 +70,7 @@ public class LoginActivity extends AppCompatActivity {
 
                                     if(task.isSuccessful()){
 
-                                        sendToSetup();
+                                        sendToHome();
 
                                     } else {
 
@@ -101,16 +102,19 @@ public class LoginActivity extends AppCompatActivity {
 
         if(currentUser != null){
 
-            sendToSetup();
+            sendToHome();
 
         }
 
 
     }
 
-    private void sendToSetup() {
+    private void sendToHome() {
 
-        Intent mainIntent = new Intent(LoginActivity.this, SetupActivity.class);
+        //Primero al Main para que cargue los datos del user actual logeado y NO los q cargó del user anterior en el Main :)
+        //Todo. podria cargar los datos aqui para evitar ir al Main y despues ir al HomeActivity.. O crear otra clase.
+        //Analizar la opcion de utilizar "Paper" dependency para almacenar las credenciales de usuario!
+        Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(mainIntent);
         finish();
 

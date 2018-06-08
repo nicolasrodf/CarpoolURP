@@ -94,7 +94,7 @@ public class RegisterActivity extends AppCompatActivity {
                                                     @Override
                                                     public void onSuccess(Void aVoid) {
                                                         reg_progress.setVisibility(View.INVISIBLE);
-                                                        Intent setupIntent = new Intent(RegisterActivity.this, SetupActivity.class);
+                                                        Intent setupIntent = new Intent(RegisterActivity.this, InitialSetupActivity.class);
                                                         startActivity(setupIntent);
                                                         finish();
                                                     }

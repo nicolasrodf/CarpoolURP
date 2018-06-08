@@ -45,12 +45,12 @@ public class MainActivity extends AppCompatActivity {
                             .addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                    //Almaceno datos de user en un object User. (para usarlo en SetupActivity).
+                                    //Almaceno datos de user en un object User. (para usarlo en HomeActivity o los q vengan con put Extras.).
                                     Common.currentUser = dataSnapshot.getValue(User.class);
                                     // User is signed in
                                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                                    startActivity(new Intent(MainActivity.this, SetupActivity.class));
-                                    //**Es necesario crear el Intent para que acceda a los datos desde SetupActivity!!
+                                    startActivity(new Intent(MainActivity.this, HomeActivity.class));
+                                    //**Es necesario crear el Intent para que acceda a los datos desde HomeActivity!!
                                 }
 
                                 @Override

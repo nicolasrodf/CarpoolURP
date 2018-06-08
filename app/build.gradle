@@ -27,21 +27,20 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
     //firebase UI Auth
-    implementation 'com.firebaseui:firebase-ui-auth:4.0.1'
 
     //Circle image view
     implementation 'de.hdodenhof:circleimageview:2.2.0'
 
     //Firebase
-    implementation 'com.google.firebase:firebase-database:16.0.1' //Real time Database
-    implementation 'com.google.firebase:firebase-storage:16.0.1' //Storage
+    implementation 'com.google.firebase:firebase-auth:11.8.0'
+    implementation 'com.google.firebase:firebase-database:11.8.0' //Real time Database
+    implementation 'com.google.firebase:firebase-storage:11.8.0' //Storage
 
     //Image compressor
     implementation 'id.zelory:compressor:2.1.0'
 
     //Picasso
     implementation 'com.squareup.picasso:picasso:2.5.2'
-
 
 
 }
