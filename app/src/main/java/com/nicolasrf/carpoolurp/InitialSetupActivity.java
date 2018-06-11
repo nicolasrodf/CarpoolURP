@@ -8,7 +8,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -76,7 +75,7 @@ public class InitialSetupActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_setup);
+        setContentView(R.layout.activity_initial_setup);
         setTitle("Initial Setup Activity");
 
         mAuth = FirebaseAuth.getInstance();
@@ -93,7 +92,7 @@ public class InitialSetupActivity extends AppCompatActivity {
         userModeSwitch = findViewById(R.id.user_mode_switch);
         setupImage = findViewById(R.id.setup_image);
         setup_progress = findViewById(R.id.setup_progress);
-        loadingProgress = findViewById(R.id.loading_progress);
+        loadingProgress = findViewById(R.id.loading_info_progress);
 
         Button setupInfoButton = findViewById(R.id.setup_btn);
         setupInfoButton.setOnClickListener(new View.OnClickListener() {
@@ -210,7 +209,8 @@ public class InitialSetupActivity extends AppCompatActivity {
 
                                             if (task.isSuccessful()) {
                                                 Toast.makeText(InitialSetupActivity.this, "Uploaded !", Toast.LENGTH_SHORT).show();
-                                                //Todo. intent hacia Home.-
+                                                //Ir hace Home
+                                                startActivity(new Intent(InitialSetupActivity.this, HomeActivity.class));
                                             } else {
                                                 Toast.makeText(InitialSetupActivity.this, "Uploaded error.", Toast.LENGTH_SHORT).show();
                                             }

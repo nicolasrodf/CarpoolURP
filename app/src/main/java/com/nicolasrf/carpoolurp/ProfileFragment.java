@@ -2,21 +2,23 @@ package com.nicolasrf.carpoolurp;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -24,8 +26,6 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -39,6 +39,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.nicolasrf.carpoolurp.Common.Common;
 import com.nicolasrf.carpoolurp.model.User;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
@@ -52,8 +53,11 @@ import java.util.Map;
 import de.hdodenhof.circleimageview.CircleImageView;
 import id.zelory.compressor.Compressor;
 
-public class SetupActivity extends AppCompatActivity {
-    private static final String TAG = "SetupActivity";
+import static android.app.Activity.RESULT_OK;
+
+
+public class ProfileFragment extends Fragment {
+    private static final String TAG = "ProfileFragment";
     private static final int MY_CAMERA_REQUEST_CODE = 1001;
 
     EditText nameSetup;
@@ -62,32 +66,31 @@ public class SetupActivity extends AppCompatActivity {
     CircleImageView setupImage;
 
     private ProgressBar setup_progress;
-    private ProgressBar loadingProgress;
+    private ProgressBar loadingInfoProgress;
+    private ProgressBar loadingImageProgress;
 
     FirebaseDatabase database;
     DatabaseReference users;
-
     //Firebase storage
     FirebaseStorage firebaseStorage;
     StorageReference storageReference;
-
     FirebaseAuth mAuth;
-
     private Bitmap compressedImageFile;
-
     Uri imageUri;
-
     private boolean isChanged = false;
-
     String avatarUrl; //para leer y para poder borrarlo
 
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_setup);
-        setTitle("Setup Activity");
 
-        Log.d(TAG, "onCreate: setup activity started");
+    public ProfileFragment() {
+        // Required empty public constructor
+    }
+
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         mAuth = FirebaseAuth.getInstance();
         //Database
@@ -98,24 +101,25 @@ public class SetupActivity extends AppCompatActivity {
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
 
-        nameSetup = findViewById(R.id.setup_name);
-        phoneSetup = findViewById(R.id.setup_phone);
-        userModeSwitch = findViewById(R.id.user_mode_switch);
-        setupImage = findViewById(R.id.setup_image);
-        setup_progress = findViewById(R.id.setup_progress);
-        loadingProgress = findViewById(R.id.loading_progress);
+        nameSetup = view.findViewById(R.id.setup_name);
+        phoneSetup = view.findViewById(R.id.setup_phone);
+        userModeSwitch = view.findViewById(R.id.user_mode_switch);
+        setupImage = view.findViewById(R.id.setup_image);
+        setup_progress = view.findViewById(R.id.setup_progress);
+        loadingInfoProgress = view.findViewById(R.id.loading_info_progress);
+        loadingImageProgress = view.findViewById(R.id.loading_image_progress);
 
-        if(mAuth.getCurrentUser()!= null) {
-            showUserInformation();
-        }
+        loadingInfoProgress.setVisibility(View.VISIBLE);
+        loadingImageProgress.setVisibility(View.VISIBLE);
 
-        Button saveSettingsButton = findViewById(R.id.setup_btn);
+        showUserInformation();
+
+        Button saveSettingsButton = view.findViewById(R.id.setup_btn);
         saveSettingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            setupUserInformation();
-            uploadImageToStorage();
-
+                uploadImageToStorage();
+                setupUserInformation();
             }
         });
 
@@ -124,22 +128,28 @@ public class SetupActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: launching camera.");
-
                 //Check permission
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-
-                    if(ContextCompat.checkSelfPermission(SetupActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-
-                        Toast.makeText(SetupActivity.this, "Permission Denied", Toast.LENGTH_LONG).show();
-                        ActivityCompat.requestPermissions(SetupActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-                    } else {
-                        bringImagePicker();
-                    }
-                } else {
-                    bringImagePicker();
-                }
+                checkPermissions();
             }
         });
+
+        return view;
+    }
+
+
+    private void checkPermissions() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+
+            if(ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+
+                Toast.makeText(getContext(), "Permission Denied", Toast.LENGTH_LONG).show();
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+            } else {
+                bringImagePicker();
+            }
+        } else {
+            bringImagePicker();
+        }
     }
 
     private void bringImagePicker() {
@@ -151,7 +161,7 @@ public class SetupActivity extends AppCompatActivity {
                 .setMinCropResultSize(512, 512)
                 .setActivityTitle("RECORTAR")
                 .setCropMenuCropButtonTitle("OK")
-                .start(SetupActivity.this);
+                .start(getContext(), this);
 
     }
 
@@ -161,7 +171,7 @@ public class SetupActivity extends AppCompatActivity {
 
         if (requestCode == MY_CAMERA_REQUEST_CODE && grantResults.length > 0) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Thanks for granting Permission", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Thanks for granting Permission", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -173,7 +183,7 @@ public class SetupActivity extends AppCompatActivity {
         //checuqeo antes si no son nulos
         if(imageUri != null) {
 
-            final ProgressDialog mDialog = new ProgressDialog(this);
+            final ProgressDialog mDialog = new ProgressDialog(getContext());
             mDialog.setMessage("Uploading...");
             mDialog.show();
 
@@ -184,7 +194,7 @@ public class SetupActivity extends AppCompatActivity {
 
                 File newImageFile = new File(imageUri.getPath());
                 try {
-                    compressedImageFile = new Compressor(SetupActivity.this)
+                    compressedImageFile = new Compressor(getContext())
                             .setMaxHeight(640)
                             .setMaxWidth(480)
                             .setQuality(50)
@@ -223,20 +233,22 @@ public class SetupActivity extends AppCompatActivity {
                                         public void onComplete(@NonNull Task<Void> task) {
 
                                             if (task.isSuccessful()) {
-                                                Toast.makeText(SetupActivity.this, "Uploaded !", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(getContext(), "Uploaded !", Toast.LENGTH_SHORT).show();
                                                 //Todo. intent hacia Home.-
                                             } else {
-                                                Toast.makeText(SetupActivity.this, "Uploaded error.", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(getContext(), "Uploaded error.", Toast.LENGTH_SHORT).show();
                                             }
 
                                             setup_progress.setVisibility(View.INVISIBLE);
                                         }
                                     });
 
+
+
                         } else {
 
                             String error = task.getException().getMessage();
-                            Toast.makeText(SetupActivity.this, "(IMAGE Error) : " + error, Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(), "(IMAGE Error) : " + error, Toast.LENGTH_LONG).show();
                             setup_progress.setVisibility(View.INVISIBLE);
 
                         }
@@ -252,18 +264,17 @@ public class SetupActivity extends AppCompatActivity {
                     }
                 });
 
-            } else {
-                Toast.makeText(this, "No image selected.", Toast.LENGTH_SHORT).show();
-                mDialog.dismiss();
             }
 
+        } else {
+            Toast.makeText(getContext(), "No image selected.", Toast.LENGTH_SHORT).show();
         }
 
     }
 
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
@@ -278,7 +289,7 @@ public class SetupActivity extends AppCompatActivity {
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
 
                 Exception error = result.getError();
-                Toast.makeText(this, "Error crop image.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Error crop image.", Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -288,7 +299,7 @@ public class SetupActivity extends AppCompatActivity {
         Log.d(TAG, "showUserInformation: LOADING ACCOUNT SETTINGS");
 
         //Todo. el loading progress no esta funcionando. (creo)
-        loadingProgress.setVisibility(View.VISIBLE);
+//        loadingInfoProgress.setVisibility(View.VISIBLE);
 
         //Todo. si User no ha puesto foto en el InitialSetup, al ver su Setup se reinicia la app!
         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -326,19 +337,30 @@ public class SetupActivity extends AppCompatActivity {
                 //avatarUrl
                 avatarUrl = user.getAvatarUrl();
                 Common.currentUser.setAvatarUrl(avatarUrl);
-                Picasso.with(getBaseContext())
+                Picasso.with(getActivity())
                         .load(Common.currentUser.getAvatarUrl())
                         .fit()
-                        .into(setupImage);
+                        .into(setupImage, new Callback() {
+                            @Override
+                            public void onSuccess() {
+                                loadingImageProgress.setVisibility(View.GONE);
+                            }
+                            @Override
+                            public void onError() {
+                                Toast.makeText(getContext(), "Error loading image.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+                loadingInfoProgress.setVisibility(View.INVISIBLE);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(SetupActivity.this, "Database error." + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Database error." + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
 
-        loadingProgress.setVisibility(View.INVISIBLE);
+
     }
 
     private void setupUserInformation() {
@@ -369,9 +391,9 @@ public class SetupActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
 
                         if(task.isSuccessful()){
-                            Toast.makeText(SetupActivity.this, "Information updated !", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "Information updated !", Toast.LENGTH_SHORT).show();
                         } else {
-                            Toast.makeText(SetupActivity.this, "Information update failed.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "Information update failed.", Toast.LENGTH_SHORT).show();
                         }
 
                         setup_progress.setVisibility(View.INVISIBLE);
@@ -380,10 +402,13 @@ public class SetupActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        finish();
-    }
+
+
+
+//    @Override
+//    public void onBackPressed() {
+//        super.onBackPressed();
+//        finish();
+//    }
 
 }
