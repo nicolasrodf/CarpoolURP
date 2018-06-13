@@ -1,4 +1,4 @@
-package com.nicolasrf.carpoolurp;
+package com.nicolasrf.carpoolurp.fragment;
 
 import android.content.Context;
 import android.net.Uri;
@@ -7,6 +7,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.nicolasrf.carpoolurp.R;
 
 
 public class TripsFragment extends Fragment {

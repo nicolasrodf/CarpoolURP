@@ -1,4 +1,4 @@
-package com.nicolasrf.carpoolurp;
+package com.nicolasrf.carpoolurp.fragment;
 
 import android.Manifest;
 import android.app.ProgressDialog;
@@ -38,6 +38,7 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.nicolasrf.carpoolurp.Common.Common;
+import com.nicolasrf.carpoolurp.R;
 import com.nicolasrf.carpoolurp.model.User;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;

@@ -1,4 +1,4 @@
-package com.nicolasrf.carpoolurp;
+package com.nicolasrf.carpoolurp.fragment;
 
 import android.content.Context;
 import android.net.Uri;
@@ -8,10 +8,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class UserModeFragment extends Fragment {
+import com.nicolasrf.carpoolurp.R;
 
 
-    public UserModeFragment() {
+public class RequestsFragment extends Fragment {
+
+
+    public RequestsFragment() {
         // Required empty public constructor
     }
 
@@ -20,7 +23,8 @@ public class UserModeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_user_mode, container, false);
+        return inflater.inflate(R.layout.fragment_requests, container, false);
     }
+
 
 }

@@ -31,4 +31,28 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="address">%1$s, %2$s</string>
+    <string name="date">%1$d/%2$d/%3$d</string>
+    <string name="number_of_seats_spinner_name">Numero de asientos</string>
+
+    <!-- Spinners array-->
+    <string-array name="number_of_seats_array">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+
+    <string-array name="travel_cost_array">
+        <item>S/ 2</item>
+        <item>S/ 3</item>
+        <item>S/ 5</item>
+        <item>S/ 7</item>
+        <item>S/ 10</item>
+        <item>S/ 15</item>
+    </string-array>
+
+    <string name="title_activity_maps">Map</string>
+
 </resources>
