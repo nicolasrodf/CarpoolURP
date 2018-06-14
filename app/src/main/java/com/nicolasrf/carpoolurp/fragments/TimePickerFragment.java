@@ -1,4 +1,4 @@
-package com.nicolasrf.carpoolurp.fragment;
+package com.nicolasrf.carpoolurp.fragments;
 
 import android.app.Dialog;
 import android.content.Context;

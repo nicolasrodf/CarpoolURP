@@ -1,24 +1,21 @@
-package com.nicolasrf.carpoolurp.fragment;
+package com.nicolasrf.carpoolurp;
 
-import android.Manifest;
+import android.*;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -38,7 +35,6 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.nicolasrf.carpoolurp.Common.Common;
-import com.nicolasrf.carpoolurp.R;
 import com.nicolasrf.carpoolurp.model.User;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -54,11 +50,10 @@ import java.util.Map;
 import de.hdodenhof.circleimageview.CircleImageView;
 import id.zelory.compressor.Compressor;
 
-import static android.app.Activity.RESULT_OK;
 
 
-public class ProfileFragment extends Fragment {
-    private static final String TAG = "ProfileFragment";
+public class ProfileActivity extends AppCompatActivity {
+    private static final String TAG = "ProfileActivity";
     private static final int MY_CAMERA_REQUEST_CODE = 1001;
 
     EditText nameSetup;
@@ -82,17 +77,10 @@ public class ProfileFragment extends Fragment {
     String avatarUrl; //para leer y para poder borrarlo
 
 
-    public ProfileFragment() {
-        // Required empty public constructor
-    }
-
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_profile, container, false);
-
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_profile);
         mAuth = FirebaseAuth.getInstance();
         //Database
         database = FirebaseDatabase.getInstance();
@@ -102,20 +90,20 @@ public class ProfileFragment extends Fragment {
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
 
-        nameSetup = view.findViewById(R.id.setup_name);
-        phoneSetup = view.findViewById(R.id.setup_phone);
-        userModeSwitch = view.findViewById(R.id.user_mode_switch);
-        setupImage = view.findViewById(R.id.setup_image);
-        setup_progress = view.findViewById(R.id.setup_progress);
-        loadingInfoProgress = view.findViewById(R.id.loading_info_progress);
-        loadingImageProgress = view.findViewById(R.id.loading_image_progress);
+        nameSetup = findViewById(R.id.setup_name);
+        phoneSetup = findViewById(R.id.setup_phone);
+        userModeSwitch = findViewById(R.id.user_mode_switch);
+        setupImage = findViewById(R.id.setup_image);
+        setup_progress = findViewById(R.id.setup_progress);
+        loadingInfoProgress = findViewById(R.id.loading_info_progress);
+        loadingImageProgress = findViewById(R.id.loading_image_progress);
 
         loadingInfoProgress.setVisibility(View.VISIBLE);
         loadingImageProgress.setVisibility(View.VISIBLE);
 
         showUserInformation();
 
-        Button saveSettingsButton = view.findViewById(R.id.setup_btn);
+        Button saveSettingsButton = findViewById(R.id.setup_btn);
         saveSettingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -134,17 +122,16 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        return view;
     }
 
 
     private void checkPermissions() {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
-            if(ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            if (ContextCompat.checkSelfPermission(ProfileActivity.this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 
-                Toast.makeText(getContext(), "Permission Denied", Toast.LENGTH_LONG).show();
-                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+                Toast.makeText(ProfileActivity.this, "Permission Denied", Toast.LENGTH_LONG).show();
+                ActivityCompat.requestPermissions(ProfileActivity.this, new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
             } else {
                 bringImagePicker();
             }
@@ -162,7 +149,7 @@ public class ProfileFragment extends Fragment {
                 .setMinCropResultSize(512, 512)
                 .setActivityTitle("RECORTAR")
                 .setCropMenuCropButtonTitle("OK")
-                .start(getContext(), this);
+                .start(this);
 
     }
 
@@ -172,7 +159,7 @@ public class ProfileFragment extends Fragment {
 
         if (requestCode == MY_CAMERA_REQUEST_CODE && grantResults.length > 0) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(getContext(), "Thanks for granting Permission", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ProfileActivity.this, "Thanks for granting Permission", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -182,9 +169,9 @@ public class ProfileFragment extends Fragment {
         Log.d(TAG, "uploadImageToStorage: started.");
 
         //checuqeo antes si no son nulos
-        if(imageUri != null) {
+        if (imageUri != null) {
 
-            final ProgressDialog mDialog = new ProgressDialog(getContext());
+            final ProgressDialog mDialog = new ProgressDialog(ProfileActivity.this);
             mDialog.setMessage("Uploading...");
             mDialog.show();
 
@@ -195,7 +182,7 @@ public class ProfileFragment extends Fragment {
 
                 File newImageFile = new File(imageUri.getPath());
                 try {
-                    compressedImageFile = new Compressor(getContext())
+                    compressedImageFile = new Compressor(ProfileActivity.this)
                             .setMaxHeight(640)
                             .setMaxWidth(480)
                             .setQuality(50)
@@ -234,10 +221,10 @@ public class ProfileFragment extends Fragment {
                                         public void onComplete(@NonNull Task<Void> task) {
 
                                             if (task.isSuccessful()) {
-                                                Toast.makeText(getContext(), "Uploaded !", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(ProfileActivity.this, "Uploaded !", Toast.LENGTH_SHORT).show();
                                                 //Todo. intent hacia Home.-
                                             } else {
-                                                Toast.makeText(getContext(), "Uploaded error.", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(ProfileActivity.this, "Uploaded error.", Toast.LENGTH_SHORT).show();
                                             }
 
                                             setup_progress.setVisibility(View.INVISIBLE);
@@ -245,11 +232,10 @@ public class ProfileFragment extends Fragment {
                                     });
 
 
-
                         } else {
 
                             String error = task.getException().getMessage();
-                            Toast.makeText(getContext(), "(IMAGE Error) : " + error, Toast.LENGTH_LONG).show();
+                            Toast.makeText(ProfileActivity.this, "(IMAGE Error) : " + error, Toast.LENGTH_LONG).show();
                             setup_progress.setVisibility(View.INVISIBLE);
 
                         }
@@ -268,7 +254,7 @@ public class ProfileFragment extends Fragment {
             }
 
         } else {
-            Toast.makeText(getContext(), "No image selected.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ProfileActivity.this, "No image selected.", Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -290,7 +276,7 @@ public class ProfileFragment extends Fragment {
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
 
                 Exception error = result.getError();
-                Toast.makeText(getContext(), "Error crop image.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ProfileActivity.this, "Error crop image.", Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -338,7 +324,7 @@ public class ProfileFragment extends Fragment {
                 //avatarUrl
                 avatarUrl = user.getAvatarUrl();
                 Common.currentUser.setAvatarUrl(avatarUrl);
-                Picasso.with(getActivity())
+                Picasso.with(ProfileActivity.this)
                         .load(Common.currentUser.getAvatarUrl())
                         .fit()
                         .into(setupImage, new Callback() {
@@ -346,9 +332,10 @@ public class ProfileFragment extends Fragment {
                             public void onSuccess() {
                                 loadingImageProgress.setVisibility(View.GONE);
                             }
+
                             @Override
                             public void onError() {
-                                Toast.makeText(getContext(), "Error loading image.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ProfileActivity.this, "Error loading image.", Toast.LENGTH_SHORT).show();
                             }
                         });
 
@@ -357,7 +344,7 @@ public class ProfileFragment extends Fragment {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(getContext(), "Database error." + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(ProfileActivity.this, "Database error." + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -371,14 +358,14 @@ public class ProfileFragment extends Fragment {
 
         setup_progress.setVisibility(View.VISIBLE);
 
-        Map<String,Object> updateInfo = new HashMap<>();
+        Map<String, Object> updateInfo = new HashMap<>();
 
-        if(!TextUtils.isEmpty(name) && !TextUtils.isEmpty(phone)){
+        if (!TextUtils.isEmpty(name) && !TextUtils.isEmpty(phone)) {
             updateInfo.put("name", name);
             updateInfo.put("phone", phone);
         }
 
-        if(!userModeSwitch.isChecked()){
+        if (!userModeSwitch.isChecked()) {
             updateInfo.put("userMode", "rider");
         } else {
             updateInfo.put("userMode", "driver");
@@ -391,10 +378,10 @@ public class ProfileFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
 
-                        if(task.isSuccessful()){
-                            Toast.makeText(getContext(), "Information updated !", Toast.LENGTH_SHORT).show();
+                        if (task.isSuccessful()) {
+                            Toast.makeText(ProfileActivity.this, "Information updated !", Toast.LENGTH_SHORT).show();
                         } else {
-                            Toast.makeText(getContext(), "Information update failed.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(ProfileActivity.this, "Information update failed.", Toast.LENGTH_SHORT).show();
                         }
 
                         setup_progress.setVisibility(View.INVISIBLE);
@@ -402,14 +389,4 @@ public class ProfileFragment extends Fragment {
                 });
 
     }
-
-
-
-
-//    @Override
-//    public void onBackPressed() {
-//        super.onBackPressed();
-//        finish();
-//    }
-
 }

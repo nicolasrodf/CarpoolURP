@@ -1,4 +1,4 @@
-package com.nicolasrf.carpoolurp.adapter;
+package com.nicolasrf.carpoolurp.adapters;
 
 
 import android.content.Context;

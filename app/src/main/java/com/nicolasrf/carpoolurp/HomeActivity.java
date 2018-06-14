@@ -3,8 +3,6 @@ package com.nicolasrf.carpoolurp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -13,13 +11,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.nicolasrf.carpoolurp.fragment.ProfileFragment;
-import com.nicolasrf.carpoolurp.fragment.RequestsFragment;
-import com.nicolasrf.carpoolurp.fragment.TripsFragment;
-import com.nicolasrf.carpoolurp.fragment.UserModeFragment;
 
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -36,8 +31,6 @@ public class HomeActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         mAuth = FirebaseAuth.getInstance();
-
-        fragment = null;
 
         Button createTripButton = findViewById(R.id.create_trip_button);
         createTripButton.setOnClickListener(new View.OnClickListener() {
@@ -64,15 +57,7 @@ public class HomeActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            //Chequear si esta en TripFragment
-            if(fragment instanceof TripsFragment){
                 super.onBackPressed(); //salir de la app
-            }
-            //Ir al trip fragment desde el otro fragmnet.
-            fragment = new TripsFragment();
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            fragmentManager.beginTransaction().replace(R.id.container, fragment, fragment.getTag()).commit();
-
         }
     }
 
@@ -105,29 +90,19 @@ public class HomeActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_my_trips) {
-
-            fragment = new TripsFragment();
+            startActivity(new Intent(HomeActivity.this, MyTripsActivity.class));
 
         } else if (id == R.id.nav_requests){
-
-            fragment = new RequestsFragment();
+            startActivity(new Intent(HomeActivity.this, RequestsActivity.class));
 
         } else if (id == R.id.nav_profile) {
-
-            fragment = new ProfileFragment();
+            startActivity(new Intent(HomeActivity.this, ProfileActivity.class));
 
         } else if (id == R.id.nav_user_mode) {
-
-            fragment = new UserModeFragment();
+            startActivity(new Intent(HomeActivity.this, UserModeActivity.class));
 
         } else if (id == R.id.nav_sign_out) {
-
             signOut();
-        }
-
-        if(fragment != null){
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            fragmentManager.beginTransaction().replace(R.id.container, fragment, fragment.getTag()).commit();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -141,4 +116,5 @@ public class HomeActivity extends AppCompatActivity
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
+
 }

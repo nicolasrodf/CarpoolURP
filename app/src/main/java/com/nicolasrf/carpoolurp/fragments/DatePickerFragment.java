@@ -1,6 +1,5 @@
-package com.nicolasrf.carpoolurp.fragment;
+package com.nicolasrf.carpoolurp.fragments;
 
-import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;

@@ -12,8 +12,8 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
@@ -62,7 +62,11 @@
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />
-        <activity android:name=".CreatePickupPointsActivity"></activity>
+        <activity android:name=".CreatePickupPointsActivity" />
+        <activity android:name=".MyTripsActivity" />
+        <activity android:name=".RequestsActivity" />
+        <activity android:name=".ProfileActivity" />
+        <activity android:name=".UserModeActivity"></activity>
     </application>
 
 </manifest>

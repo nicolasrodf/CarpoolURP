@@ -32,9 +32,9 @@ import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.model.LatLng;
 import com.nicolasrf.carpoolurp.Common.Common;
-import com.nicolasrf.carpoolurp.adapter.NothingSelectedSpinnerAdapter;
-import com.nicolasrf.carpoolurp.fragment.DatePickerFragment;
-import com.nicolasrf.carpoolurp.fragment.TimePickerFragment;
+import com.nicolasrf.carpoolurp.adapters.NothingSelectedSpinnerAdapter;
+import com.nicolasrf.carpoolurp.fragments.DatePickerFragment;
+import com.nicolasrf.carpoolurp.fragments.TimePickerFragment;
 import com.nicolasrf.carpoolurp.remote.IGoogleService;
 import com.nicolasrf.carpoolurp.utils.Utils;
 
@@ -67,6 +67,7 @@ public class CreateTripActivity extends AppCompatActivity implements TimePickerF
     int numericTravelCost;
     Date dateDataGregorian;
     String updatedTimeData;
+    String updatedDateStringFormat;
     String numberOfSeatSelected;
     String travelCostSelected;
     Spinner numberOfSeatsSpinner;
@@ -112,7 +113,8 @@ public class CreateTripActivity extends AppCompatActivity implements TimePickerF
     public void onDateData(int day, int mon, int year) {
         //prevenir q muestre meses de 0 a 11.
         int monthCorrected = mon + 1;
-        dateTextView.setText(getString(R.string.date, day, monthCorrected, year));
+        updatedDateStringFormat = getString(R.string.date, day, monthCorrected, year);
+        dateTextView.setText(updatedDateStringFormat); //Muestra y corrige la fecha a mostrar. CLAVE.
         localDay = day;
         localMonth = mon;
         localYear = year;
@@ -227,9 +229,6 @@ public class CreateTripActivity extends AppCompatActivity implements TimePickerF
 
         });
 
-
-
-
         dateTextView = findViewById(R.id.date_text_view);
         dateTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -284,7 +283,8 @@ public class CreateTripActivity extends AppCompatActivity implements TimePickerF
                 passInfoIntent.putExtra("placeAddress", placeAddress);
                 passInfoIntent.putExtra("placeLatLng", placeLatLng);
                 passInfoIntent.putExtra("date", dateDataGregorian);
-                passInfoIntent.putExtra("time", updatedTimeData);
+                passInfoIntent.putExtra("dateString", updatedDateStringFormat);
+                passInfoIntent.putExtra("timeString", updatedTimeData);
                 passInfoIntent.putExtra("seats", numericNumberOfSeats);
                 passInfoIntent.putExtra("cost", numericTravelCost);
                 startActivity(passInfoIntent);
