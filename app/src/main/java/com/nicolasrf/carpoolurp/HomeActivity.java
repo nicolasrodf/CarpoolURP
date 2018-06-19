@@ -9,19 +9,33 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.nicolasrf.carpoolurp.Common.Common;
+import com.nicolasrf.carpoolurp.model.User;
 
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+    private static final String TAG = "HomeActivity";
 
     FirebaseAuth mAuth;
+    FirebaseDatabase database;
+    DatabaseReference users;
 
-    Fragment fragment; //almacena el fragment actual
+    String userMode;
+
+    NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +45,11 @@ public class HomeActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         mAuth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance();
+        users = database.getReference("users");
+
+        //Get user mode
+        getUserMode();
 
         Button createTripButton = findViewById(R.id.create_trip_button);
         createTripButton.setOnClickListener(new View.OnClickListener() {
@@ -47,9 +66,47 @@ public class HomeActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
     }
+
+    private void getUserMode() {
+        users.child(mAuth.getCurrentUser().getUid())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        User user = dataSnapshot.getValue(User.class);
+                        userMode = user.getUserMode();
+                        Common.currentUser.setUserMode(userMode); //Asigno al objet User
+                        Log.d(TAG, "onDataChange: USER MODE: " +userMode);
+
+                        //Hide or show Request Navigation Item
+                        hideOrShowRequestItem();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+    }
+
+    private void hideOrShowRequestItem() {
+
+        Menu nav_Menu = navigationView.getMenu();
+
+        //Uso el valor asignado al objeto User al hacer la consulta en getUserMode()
+        if(Common.currentUser.getUserMode().equals("rider")){
+            //Hide Requests item
+            nav_Menu.findItem(R.id.nav_requests).setVisible(false);
+
+        } else if(Common.currentUser.getUserMode().equals("driver")){
+            //Show Requests item
+            nav_Menu.findItem(R.id.nav_requests).setVisible(true);
+        }
+    }
+
 
     @Override
     public void onBackPressed() {
@@ -98,9 +155,6 @@ public class HomeActivity extends AppCompatActivity
         } else if (id == R.id.nav_profile) {
             startActivity(new Intent(HomeActivity.this, ProfileActivity.class));
 
-        } else if (id == R.id.nav_user_mode) {
-            startActivity(new Intent(HomeActivity.this, UserModeActivity.class));
-
         } else if (id == R.id.nav_sign_out) {
             signOut();
         }
@@ -117,4 +171,11 @@ public class HomeActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+    //Todo. Problema al volver desde Profile no actualiza el user mode.-
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        getUserMode();
+        Log.d(TAG, "onPostResume: USER MODE " +userMode);
+    }
 }

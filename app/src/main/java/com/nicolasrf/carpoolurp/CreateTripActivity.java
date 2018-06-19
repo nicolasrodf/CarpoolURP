@@ -1,5 +1,7 @@
 package com.nicolasrf.carpoolurp;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -31,10 +33,16 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.nicolasrf.carpoolurp.Common.Common;
 import com.nicolasrf.carpoolurp.adapters.NothingSelectedSpinnerAdapter;
 import com.nicolasrf.carpoolurp.fragments.DatePickerFragment;
 import com.nicolasrf.carpoolurp.fragments.TimePickerFragment;
+import com.nicolasrf.carpoolurp.model.Trip;
 import com.nicolasrf.carpoolurp.remote.IGoogleService;
 import com.nicolasrf.carpoolurp.utils.Utils;
 
@@ -92,6 +100,9 @@ public class CreateTripActivity extends AppCompatActivity implements TimePickerF
 
     //Declare Google map Api Retrofit
     IGoogleService mGoogleMapService;
+
+    FirebaseDatabase database;
+    DatabaseReference trips;
 
     int localDay, localMonth, localYear, localHour, localMinute; //for add in gregorian calendar.-
 
@@ -156,6 +167,10 @@ public class CreateTripActivity extends AppCompatActivity implements TimePickerF
 
         //Init google api service
         mGoogleMapService = Common.getGoogleMapsAPI();
+
+        //init firebase database
+        database = FirebaseDatabase.getInstance();
+        trips = database.getReference("trips");
 
         //Show search address fragment
         final PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
@@ -270,7 +285,9 @@ public class CreateTripActivity extends AppCompatActivity implements TimePickerF
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //
+
+                final String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
                 //Estos dos campos se deben calcular dentro del boton. se seleccionan de cada spinner y se convierten a numerico.
                 numberOfSeatSelected = numberOfSeatsSpinner.getSelectedItem().toString();
                 numericNumberOfSeats = Utils.numberOfSeatsToNumeric(numberOfSeatSelected);
@@ -279,15 +296,67 @@ public class CreateTripActivity extends AppCompatActivity implements TimePickerF
 
                 dateDataGregorian = new GregorianCalendar(localYear, localMonth, localDay, localHour, localMinute).getTime();
 
-                Intent passInfoIntent = new Intent(CreateTripActivity.this, CreatePickupPointsActivity.class);
-                passInfoIntent.putExtra("placeAddress", placeAddress);
-                passInfoIntent.putExtra("placeLatLng", placeLatLng);
-                passInfoIntent.putExtra("date", dateDataGregorian);
-                passInfoIntent.putExtra("dateString", updatedDateStringFormat);
-                passInfoIntent.putExtra("timeString", updatedTimeData);
-                passInfoIntent.putExtra("seats", numericNumberOfSeats);
-                passInfoIntent.putExtra("cost", numericTravelCost);
-                startActivity(passInfoIntent);
+                //Alert Dialog
+                AlertDialog.Builder dialog = new AlertDialog.Builder(CreateTripActivity.this);
+//                dialog.setTitle("CONFIRMAR");
+                dialog.setMessage("Desea crear el viaje?");
+                dialog.setPositiveButton("SI", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+
+                        Trip trip = new Trip();
+                        trip.setAddress(placeAddress);
+                        trip.setLatLng(placeLatLng);
+                        trip.setDate(dateDataGregorian);
+                        trip.setDateString(updatedDateStringFormat);
+                        trip.setTimeString(updatedTimeData);
+                        trip.setSeats(numericNumberOfSeats);
+                        trip.setCost(numericTravelCost);
+                        trip.setActive(true); //iniciar viaje como active.
+
+                        //Se pondrá cada viaje dentro del nodo trip -> usuario.
+                        trips.child(user_id) //nodo user_id
+                                .push() //get unique key for trip
+                                .setValue(trip)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Toast.makeText(CreateTripActivity.this, "Viaje creado exitosamente!", Toast.LENGTH_SHORT).show();
+                                        //ir a ver el viaje.-
+                                        Intent intent = new Intent(CreateTripActivity.this, HomeActivity.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        startActivity(intent);
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(CreateTripActivity.this, "Upload failed.", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                    }
+                });
+                dialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+                dialog.show();
+                //
+
+
+//                Intent passInfoIntent = new Intent(CreateTripActivity.this, CreatePickupPointsActivity.class);
+//                passInfoIntent.putExtra("placeAddress", placeAddress);
+//                passInfoIntent.putExtra("placeLatLng", placeLatLng);
+//                passInfoIntent.putExtra("date", dateDataGregorian);
+//                passInfoIntent.putExtra("dateString", updatedDateStringFormat);
+//                passInfoIntent.putExtra("timeString", updatedTimeData);
+//                passInfoIntent.putExtra("seats", numericNumberOfSeats);
+//                passInfoIntent.putExtra("cost", numericTravelCost);
+//                startActivity(passInfoIntent);
 
             }
         });

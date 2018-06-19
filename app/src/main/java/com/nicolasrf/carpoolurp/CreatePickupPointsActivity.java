@@ -40,54 +40,54 @@ public class CreatePickupPointsActivity extends AppCompatActivity {
         //No volidar q antes de finalizar la creacion del viaje se debe UN CAMPO poner como ACTIVE TRIP = TRUE;
 
         //get data from intent
-        Intent intent = getIntent();
-        Bundle bundle = intent.getExtras();
-        String placeAddress = bundle.getString("placeAddress");
-        LatLng placeLatLng = (LatLng) bundle.get("placeLatLng");
-        Date date  = (Date) bundle.get("date");
-        String dateString = bundle.getString("dateString");
-        String timeString = bundle.getString("timeString");
-        Integer seats  = bundle.getInt("seats");
-        Integer cost  = bundle.getInt("cost");
-
-        Log.d(TAG, "onCreate: placeAddress: " + placeAddress);
-        Log.d(TAG, "onCreate: placeLatLng: " + placeLatLng);
-        Log.d(TAG, "onCreate: date: " + date);
-        Log.d(TAG, "onCreate: dateString" + dateString);
-        Log.d(TAG, "onCreate: timeString: " + timeString);
-        Log.d(TAG, "onCreate: seats: " + seats);
-        Log.d(TAG, "onCreate: cost: " + cost);
+//        Intent intent = getIntent();
+//        Bundle bundle = intent.getExtras();
+//        String placeAddress = bundle.getString("placeAddress");
+//        LatLng placeLatLng = (LatLng) bundle.get("placeLatLng");
+//        Date date  = (Date) bundle.get("date");
+//        String dateString = bundle.getString("dateString");
+//        String timeString = bundle.getString("timeString");
+//        Integer seats  = bundle.getInt("seats");
+//        Integer cost  = bundle.getInt("cost");
+//
+//        Log.d(TAG, "onCreate: placeAddress: " + placeAddress);
+//        Log.d(TAG, "onCreate: placeLatLng: " + placeLatLng);
+//        Log.d(TAG, "onCreate: date: " + date);
+//        Log.d(TAG, "onCreate: dateString" + dateString);
+//        Log.d(TAG, "onCreate: timeString: " + timeString);
+//        Log.d(TAG, "onCreate: seats: " + seats);
+//        Log.d(TAG, "onCreate: cost: " + cost);
 
         //showTripInformation;
 
         //uploadToFirebase;
 
-        Trip trip = new Trip();
-        trip.setAddress(placeAddress);
-        trip.setLatLng(placeLatLng);
-        trip.setDate(date);
-        trip.setDateString(dateString);
-        trip.setTimeString(timeString);
-        trip.setSeats(seats);
-        trip.setCost(cost);
-        trip.setActive(true); //iniciar viaje como active.
-
-        //Se pondrá cada viaje dentro del nodo trip -> usuario.
-        trips.child(user_id) //nodo user_id
-                .push() //get unique key for trip
-                .setValue(trip)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Toast.makeText(CreatePickupPointsActivity.this, "Viaje creado exitosamente!", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(CreatePickupPointsActivity.this, "Upload failed.", Toast.LENGTH_SHORT).show();
-                    }
-                });
+//        Trip trip = new Trip();
+//        trip.setAddress(placeAddress);
+//        trip.setLatLng(placeLatLng);
+//        trip.setDate(date);
+//        trip.setDateString(dateString);
+//        trip.setTimeString(timeString);
+//        trip.setSeats(seats);
+//        trip.setCost(cost);
+//        trip.setActive(true); //iniciar viaje como active.
+//
+//        //Se pondrá cada viaje dentro del nodo trip -> usuario.
+//        trips.child(user_id) //nodo user_id
+//                .push() //get unique key for trip
+//                .setValue(trip)
+//                .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                    @Override
+//                    public void onSuccess(Void aVoid) {
+//                        Toast.makeText(CreatePickupPointsActivity.this, "Viaje creado exitosamente!", Toast.LENGTH_SHORT).show();
+//                    }
+//                })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Toast.makeText(CreatePickupPointsActivity.this, "Upload failed.", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
 
 
 

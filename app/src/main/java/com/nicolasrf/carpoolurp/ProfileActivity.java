@@ -1,7 +1,9 @@
 package com.nicolasrf.carpoolurp;
 
 import android.*;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -9,20 +11,25 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -35,6 +42,7 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.nicolasrf.carpoolurp.Common.Common;
+import com.nicolasrf.carpoolurp.model.Car;
 import com.nicolasrf.carpoolurp.model.User;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -67,6 +75,8 @@ public class ProfileActivity extends AppCompatActivity {
 
     FirebaseDatabase database;
     DatabaseReference users;
+    DatabaseReference cars;
+
     //Firebase storage
     FirebaseStorage firebaseStorage;
     StorageReference storageReference;
@@ -75,6 +85,12 @@ public class ProfileActivity extends AppCompatActivity {
     Uri imageUri;
     private boolean isChanged = false;
     String avatarUrl; //para leer y para poder borrarlo
+
+    Button driverInfoButton;
+
+    String userID;
+
+    boolean carExists;
 
 
     @Override
@@ -85,6 +101,7 @@ public class ProfileActivity extends AppCompatActivity {
         //Database
         database = FirebaseDatabase.getInstance();
         users = database.getReference("users");
+        cars = database.getReference("cars");
 
         //Init Firebase storage
         firebaseStorage = FirebaseStorage.getInstance();
@@ -100,6 +117,8 @@ public class ProfileActivity extends AppCompatActivity {
 
         loadingInfoProgress.setVisibility(View.VISIBLE);
         loadingImageProgress.setVisibility(View.VISIBLE);
+
+        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         showUserInformation();
 
@@ -122,8 +141,168 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
-    }
+        //Check switch status when change on / off
+        userModeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                //Check user mode locally checked
+                if(!isChecked){
+                    driverInfoButton.setVisibility(View.GONE);
 
+                } else {
+                    //Show "Datos de Conductor" Button
+                    driverInfoButton.setVisibility(View.VISIBLE);
+                    //Initialize button and show dialog to get and set driver information!
+                }
+            }
+        });
+
+        driverInfoButton = findViewById(R.id.driver_info_button);
+
+        driverInfoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Open Dialog.-
+                AlertDialog.Builder builder = new AlertDialog.Builder(ProfileActivity.this);
+                builder.setTitle("Datos de conductor");
+                View itemView = LayoutInflater.from(ProfileActivity.this).inflate(R.layout.driver_info_layout,null);
+
+                final TextInputEditText carBrandTextInput = itemView.findViewById(R.id.car_brand_text_input);
+                final TextInputEditText carModelTextInput = itemView.findViewById(R.id.car_model_text_input);
+                final TextInputEditText carLicenseTextInput = itemView.findViewById(R.id.car_license_text_input);
+                final TextInputEditText carColorTextInput = itemView.findViewById(R.id.car_color_text_input);
+
+                final ProgressBar carProgressBar = itemView.findViewById(R.id.car_progress_bar);
+                carProgressBar.setVisibility(View.VISIBLE);
+
+                //getCarInformation.-
+                cars.child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.exists()){
+                            Toast.makeText(ProfileActivity.this, "Carro existe.", Toast.LENGTH_SHORT).show();
+                            carExists = true;
+                            //get information
+                            cars.child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    Car car = dataSnapshot.getValue(Car.class);
+                                    String brand = car.getBrand();
+                                    String model = car.getModel();
+                                    String color = car.getColor();
+                                    String license = car.getLicense();
+                                    carBrandTextInput.setText(brand);
+                                    carModelTextInput.setText(model);
+                                    carColorTextInput.setText(color);
+                                    carLicenseTextInput.setText(license);
+
+                                    carProgressBar.setVisibility(View.INVISIBLE);
+
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+                                    Toast.makeText(ProfileActivity.this, "Error: "+databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+
+                            });
+
+                        } else {
+                            carExists = false;
+                            //Toast.makeText(ProfileActivity.this, "NO existe carro asociado.", Toast.LENGTH_SHORT).show();
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Toast.makeText(ProfileActivity.this, "Database error." + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                        carProgressBar.setVisibility(View.INVISIBLE);
+                    }
+                });
+
+                builder.setView(itemView);
+                builder.setPositiveButton("ACEPTAR", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        String brand = carBrandTextInput.getText().toString();
+                        String model = carModelTextInput.getText().toString();
+                        String color = carColorTextInput.getText().toString();
+                        String license = carLicenseTextInput.getText().toString();
+
+                        if(!TextUtils.isEmpty(brand)&&!TextUtils.isEmpty(model)&&!TextUtils.isEmpty(color)
+                                &&!TextUtils.isEmpty(license)) {
+
+                            Car car = new Car();
+                            car.setBrand(carBrandTextInput.getText().toString());
+                            car.setModel(carModelTextInput.getText().toString());
+                            car.setColor(carColorTextInput.getText().toString());
+                            car.setLicense(carLicenseTextInput.getText().toString());
+
+                            if (!carExists) {
+
+                                //add to firebase database.
+                                cars.child(userID)
+                                        .setValue(car)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Toast.makeText(ProfileActivity.this, "Car created.", Toast.LENGTH_SHORT).show();
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(ProfileActivity.this, "Error creating car: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                            } else {
+                                //Update car info
+                                Map<String, Object> updateCarInfo = new HashMap<>();
+
+                                updateCarInfo.put("brand", brand);
+                                updateCarInfo.put("model", model);
+                                updateCarInfo.put("color", color);
+                                updateCarInfo.put("license", license);
+
+                                cars.child(userID)
+                                        .updateChildren(updateCarInfo)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Toast.makeText(ProfileActivity.this, "Information updated.", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(ProfileActivity.this, "Error: " +e.getMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                            }
+
+                        } else {
+                            Toast.makeText(ProfileActivity.this, "Debe completar todos los campos.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+
+                });
+
+                builder.setNegativeButton("CANCELAR", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(ProfileActivity.this, "Cancelado.", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    }
+                });
+
+                builder.show();
+            }
+        });
+
+
+    }
 
     private void checkPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -289,7 +468,6 @@ public class ProfileActivity extends AppCompatActivity {
 //        loadingInfoProgress.setVisibility(View.VISIBLE);
 
         //Todo. si User no ha puesto foto en el InitialSetup, al ver su Setup se reinicia la app!
-        String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         Log.d(TAG, "showUserInformation: USER ID " + userID);
 
         //**Despues de obtener la info de firebase, lo asigno al objecto User y con ese object asigno los valores a los widgets.
@@ -318,7 +496,6 @@ public class ProfileActivity extends AppCompatActivity {
                     userModeSwitch.setChecked(false);
                 } else if (Common.currentUser.getUserMode().equals("driver")) {
                     userModeSwitch.setChecked(true);
-                    Common.currentUser.setUserMode("driver");
                 }
 
                 //avatarUrl
