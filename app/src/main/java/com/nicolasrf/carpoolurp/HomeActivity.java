@@ -56,7 +56,7 @@ public class HomeActivity extends AppCompatActivity
         //Get user mode
         getUserMode();
 
-        Button createTripButton = findViewById(R.id.create_trip_button);
+        final Button createTripButton = findViewById(R.id.create_trip_button);
         createTripButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -79,8 +79,9 @@ public class HomeActivity extends AppCompatActivity
         final TextView addressTextView = findViewById(R.id.address_text_view);
         final TextView dateTextView = findViewById(R.id.date_text_view);
         final TextView timeTextView = findViewById(R.id.time_text_view);
+        final TextView noTripMessageTextView = findViewById(R.id.no_active_trip_text_view);
 
-        LinearLayout activeTripLinearLayout = findViewById(R.id.active_trip_linear_layout);
+        final LinearLayout activeTripLinearLayout = findViewById(R.id.active_trip_linear_layout);
         activeTripLinearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -96,39 +97,51 @@ public class HomeActivity extends AppCompatActivity
 
         final String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         //query firebase trip data
-        //Todo. Pendiente Crear getActiveTrip() para el OnResume tambien.-
         Query query = user_trips.child(userID)
                 .orderByChild("active")
                 .equalTo(true);
         query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                //Recorrer los nodos aunque tendremos solo un viaje activo siempre.
-                for(DataSnapshot dSnapshot : dataSnapshot.getChildren()) {
-                    address = dSnapshot.child("address").getValue(String.class);
+
+                if (dataSnapshot.exists()) {
+
+                    //Recorrer los nodos aunque tendremos solo un viaje activo siempre.
+                    for (DataSnapshot dSnapshot : dataSnapshot.getChildren()) {
+
+                        address = dSnapshot.child("address").getValue(String.class);
 //                    Double latitude = dSnapshot.child("latLng").getValue(LatLng.class).latitude;
 //                    Double longitude = dSnapshot.child("latLng").getValue(LatLng.class).longitude;
-                    String latLngString = dSnapshot.child("latLng").getValue(String.class);
+                        String latLngString = dSnapshot.child("latLng").getValue(String.class);
 
-                    //En el siguiente activity obtendremos el latLng así:
-                    //String[] latLngSplitted = latLngString.split(",");
-                    //LatLng latLng = new LatLng(Double.parseDouble(latLngSplitted[0]),Double.parseDouble(latLngSplitted[1]));
+                        //En el siguiente activity obtendremos el latLng así:
+                        //String[] latLngSplitted = latLngString.split(",");
+                        //LatLng latLng = new LatLng(Double.parseDouble(latLngSplitted[0]),Double.parseDouble(latLngSplitted[1]));
 
 
-                    Date date = dSnapshot.child("date").getValue(Date.class);
-                    dateString = dSnapshot.child("dateString").getValue(String.class);
-                    timeString = dSnapshot.child("timeString").getValue(String.class);
-                    Integer seats = dSnapshot.child("seats").getValue(Integer.class);
-                    Integer cost = dSnapshot.child("cost").getValue(Integer.class);
-                    Boolean isActive = dSnapshot.child("active").getValue(Boolean.class);
-                    tripId = dSnapshot.getKey();
-                    //userID: userID ya fue buscado anteriormente.
+                        Date date = dSnapshot.child("date").getValue(Date.class);
+                        dateString = dSnapshot.child("dateString").getValue(String.class);
+                        timeString = dSnapshot.child("timeString").getValue(String.class);
+                        Integer seats = dSnapshot.child("seats").getValue(Integer.class);
+                        Integer cost = dSnapshot.child("cost").getValue(Integer.class);
+                        Boolean isActive = dSnapshot.child("active").getValue(Boolean.class);
+                        tripId = dSnapshot.getKey();
+                        //userID: userID ya fue buscado anteriormente.
 
-                    //set text views
-                    addressTextView.setText(address);
-                    dateTextView.setText(dateString);
-                    timeTextView.setText(timeString);
+                        //set text views
+                        addressTextView.setText(address);
+                        dateTextView.setText(dateString);
+                        timeTextView.setText(timeString);
 
+                    }
+
+                } else {
+
+                    activeTripLinearLayout.setVisibility(View.GONE);
+                    noTripMessageTextView.setVisibility(View.VISIBLE);
+                    noTripMessageTextView.setText("No tiene viaje creado." + "\n"
+                            + "Para crear un nuevo viaje, presione el botón 'Crear Viaje'");
+                    createTripButton.setVisibility(View.VISIBLE);
 
                 }
             }

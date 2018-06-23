@@ -12,45 +12,11 @@
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary" />
 
-    <LinearLayout
-        android:id="@+id/active_trip_linear_layout"
+    <ListView
+        android:id="@+id/trip_list_view"
+        android:layout_below="@id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_below="@+id/toolbar">
-
-        <TextView
-            android:id="@+id/address_text_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            />
-
-        <TextView
-            android:id="@+id/urp_text_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Universidad Ricardo Palma"
-            />
-
-        <TextView
-            android:id="@+id/date_text_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            />
-
-        <TextView
-            android:id="@+id/time_text_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            />
-
-    </LinearLayout>
-
-    <!--<ListView-->
-        <!--android:id="@+id/trip_list_view"-->
-        <!--android:layout_below="@id/toolbar"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"/>-->
+        android:layout_height="wrap_content"/>
 
 </RelativeLayout>
 

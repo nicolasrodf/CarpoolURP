@@ -43,8 +43,9 @@ public class TripAdapter extends ArrayAdapter<Trip> {
             convertView = inflater.inflate(layoutId, null);
 
             holder = new ViewHolder();
-            holder.addressTextView = (TextView) convertView.findViewById(R.id.address);
-            holder.dateTextView = (TextView) convertView.findViewById(R.id.date_string);
+            holder.addressTextView = (TextView) convertView.findViewById(R.id.address_text_view);
+            holder.dateTextView = (TextView) convertView.findViewById(R.id.date_text_view);
+            holder.timeTextView = (TextView) convertView.findViewById(R.id.time_text_view);
             convertView.setTag(holder);
         }
 
@@ -55,6 +56,7 @@ public class TripAdapter extends ArrayAdapter<Trip> {
             Trip trip = tripList.get(position);
             holder.addressTextView.setText(String.valueOf(trip.getAddress()));
             holder.dateTextView.setText(String.valueOf(trip.getDateString()));
+            holder.timeTextView.setText(String.valueOf(trip.getTimeString()));
 
         return convertView;
 
@@ -64,6 +66,7 @@ public class TripAdapter extends ArrayAdapter<Trip> {
 
         public TextView addressTextView;
         public TextView dateTextView;
+        public TextView timeTextView;
 
     }
 

@@ -1,14 +1,11 @@
 package com.nicolasrf.carpoolurp.model;
 
-import com.google.android.gms.maps.model.LatLng;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import java.util.Date;
 
-/**
- * Created by Nicolas on 13/06/2018.
- */
-
-public class Trip {
+public class Trip implements Parcelable {
 
     private String address;
     private String latLng;
@@ -116,4 +113,60 @@ public class Trip {
     public void setUser_id(String user_id) {
         this.user_id = user_id;
     }
+
+    protected Trip(Parcel in) {
+        address = in.readString();
+        latLng = in.readString();
+        long tmpDate = in.readLong();
+        date = tmpDate != -1 ? new Date(tmpDate) : null;
+        dateString = in.readString();
+        timeString = in.readString();
+        seats = in.readByte() == 0x00 ? null : in.readInt();
+        cost = in.readByte() == 0x00 ? null : in.readInt();
+        isActive = in.readByte() != 0x00;
+        trip_id = in.readString();
+        user_id = in.readString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(address);
+        dest.writeString(latLng);
+        dest.writeLong(date != null ? date.getTime() : -1L);
+        dest.writeString(dateString);
+        dest.writeString(timeString);
+        if (seats == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeInt(seats);
+        }
+        if (cost == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeInt(cost);
+        }
+        dest.writeByte((byte) (isActive ? 0x01 : 0x00));
+        dest.writeString(trip_id);
+        dest.writeString(user_id);
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<Trip> CREATOR = new Parcelable.Creator<Trip>() {
+        @Override
+        public Trip createFromParcel(Parcel in) {
+            return new Trip(in);
+        }
+
+        @Override
+        public Trip[] newArray(int size) {
+            return new Trip[size];
+        }
+    };
 }
