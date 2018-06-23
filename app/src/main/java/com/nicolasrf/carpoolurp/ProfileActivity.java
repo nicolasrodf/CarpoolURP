@@ -203,15 +203,19 @@ public class ProfileActivity extends AppCompatActivity {
                                 @Override
                                 public void onCancelled(DatabaseError databaseError) {
                                     Toast.makeText(ProfileActivity.this, "Error: "+databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                                    carProgressBar.setVisibility(View.INVISIBLE);
                                 }
 
                             });
 
                         } else {
                             carExists = false;
-                            //Toast.makeText(ProfileActivity.this, "NO existe carro asociado.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(ProfileActivity.this, "NO existe carro asociado.", Toast.LENGTH_SHORT).show();
+                            carProgressBar.setVisibility(View.INVISIBLE);
 
                         }
+
+
                     }
 
                     @Override
@@ -239,6 +243,7 @@ public class ProfileActivity extends AppCompatActivity {
                             car.setModel(carModelTextInput.getText().toString());
                             car.setColor(carColorTextInput.getText().toString());
                             car.setLicense(carLicenseTextInput.getText().toString());
+                            car.setUser_id(userID);
 
                             if (!carExists) {
 

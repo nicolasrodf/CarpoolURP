@@ -31,7 +31,7 @@ public class CreatePickupPointsActivity extends AppCompatActivity {
 
         //init firebase database
         database = FirebaseDatabase.getInstance();
-        trips = database.getReference("trips");
+        trips = database.getReference("user_trips");
 
         mAuth = FirebaseAuth.getInstance();
         String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -43,7 +43,7 @@ public class CreatePickupPointsActivity extends AppCompatActivity {
 //        Intent intent = getIntent();
 //        Bundle bundle = intent.getExtras();
 //        String placeAddress = bundle.getString("placeAddress");
-//        LatLng placeLatLng = (LatLng) bundle.get("placeLatLng");
+//        LatLng latLng = (LatLng) bundle.get("latLng");
 //        Date date  = (Date) bundle.get("date");
 //        String dateString = bundle.getString("dateString");
 //        String timeString = bundle.getString("timeString");
@@ -51,7 +51,7 @@ public class CreatePickupPointsActivity extends AppCompatActivity {
 //        Integer cost  = bundle.getInt("cost");
 //
 //        Log.d(TAG, "onCreate: placeAddress: " + placeAddress);
-//        Log.d(TAG, "onCreate: placeLatLng: " + placeLatLng);
+//        Log.d(TAG, "onCreate: latLng: " + latLng);
 //        Log.d(TAG, "onCreate: date: " + date);
 //        Log.d(TAG, "onCreate: dateString" + dateString);
 //        Log.d(TAG, "onCreate: timeString: " + timeString);
@@ -64,7 +64,7 @@ public class CreatePickupPointsActivity extends AppCompatActivity {
 
 //        Trip trip = new Trip();
 //        trip.setAddress(placeAddress);
-//        trip.setLatLng(placeLatLng);
+//        trip.setLatLng(latLng);
 //        trip.setDate(date);
 //        trip.setDateString(dateString);
 //        trip.setTimeString(timeString);
@@ -73,7 +73,7 @@ public class CreatePickupPointsActivity extends AppCompatActivity {
 //        trip.setActive(true); //iniciar viaje como active.
 //
 //        //Se pondrá cada viaje dentro del nodo trip -> usuario.
-//        trips.child(user_id) //nodo user_id
+//        user_trips.child(user_id) //nodo user_id
 //                .push() //get unique key for trip
 //                .setValue(trip)
 //                .addOnSuccessListener(new OnSuccessListener<Void>() {

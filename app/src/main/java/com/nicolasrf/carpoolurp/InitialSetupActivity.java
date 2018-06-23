@@ -210,7 +210,9 @@ public class InitialSetupActivity extends AppCompatActivity {
                                             if (task.isSuccessful()) {
                                                 Toast.makeText(InitialSetupActivity.this, "Uploaded !", Toast.LENGTH_SHORT).show();
                                                 //Ir hace Home
-                                                startActivity(new Intent(InitialSetupActivity.this, HomeActivity.class));
+                                                Intent intent = new Intent(InitialSetupActivity.this, HomeActivity.class);
+                                                startActivity(intent);
+                                                finish();
                                             } else {
                                                 Toast.makeText(InitialSetupActivity.this, "Uploaded error.", Toast.LENGTH_SHORT).show();
                                             }

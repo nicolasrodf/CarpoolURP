@@ -10,15 +10,17 @@ public class Car {
     private String model;
     private String color;
     private String license;
+    private String user_id;
 
     public Car() {
     }
 
-    public Car(String brand, String model, String color, String license) {
+    public Car(String brand, String model, String color, String license, String user_id) {
         this.brand = brand;
         this.model = model;
         this.color = color;
         this.license = license;
+        this.user_id = user_id;
     }
 
     public String getBrand() {
@@ -53,4 +55,11 @@ public class Car {
         this.license = license;
     }
 
+    public String getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(String user_id) {
+        this.user_id = user_id;
+    }
 }

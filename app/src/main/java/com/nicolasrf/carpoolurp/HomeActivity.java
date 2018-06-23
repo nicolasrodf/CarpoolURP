@@ -2,7 +2,6 @@ package com.nicolasrf.carpoolurp;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -14,16 +13,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.nicolasrf.carpoolurp.Common.Common;
 import com.nicolasrf.carpoolurp.model.User;
+
+import java.util.Date;
 
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -31,9 +34,10 @@ public class HomeActivity extends AppCompatActivity
 
     FirebaseAuth mAuth;
     FirebaseDatabase database;
-    DatabaseReference users;
+    DatabaseReference users, user_trips;
 
     String userMode;
+    String address, dateString, timeString, tripId;
 
     NavigationView navigationView;
 
@@ -47,6 +51,7 @@ public class HomeActivity extends AppCompatActivity
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         users = database.getReference("users");
+        user_trips = database.getReference("user_trips");
 
         //Get user mode
         getUserMode();
@@ -68,6 +73,123 @@ public class HomeActivity extends AppCompatActivity
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        //VIEW ACTIVE TRIP.-
+
+        final TextView addressTextView = findViewById(R.id.address_text_view);
+        final TextView dateTextView = findViewById(R.id.date_text_view);
+        final TextView timeTextView = findViewById(R.id.time_text_view);
+
+        LinearLayout activeTripLinearLayout = findViewById(R.id.active_trip_linear_layout);
+        activeTripLinearLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //pass data to next activity
+                Intent intent = new Intent(HomeActivity.this, DetailActiveTripActivity.class);
+                intent.putExtra("address", address);
+                intent.putExtra("dateString", dateString);
+                intent.putExtra("timeString", timeString);
+                intent.putExtra("tripId", tripId);
+                startActivity(intent);
+            }
+        });
+
+        final String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        //query firebase trip data
+        //Todo. Pendiente Crear getActiveTrip() para el OnResume tambien.-
+        Query query = user_trips.child(userID)
+                .orderByChild("active")
+                .equalTo(true);
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                //Recorrer los nodos aunque tendremos solo un viaje activo siempre.
+                for(DataSnapshot dSnapshot : dataSnapshot.getChildren()) {
+                    address = dSnapshot.child("address").getValue(String.class);
+//                    Double latitude = dSnapshot.child("latLng").getValue(LatLng.class).latitude;
+//                    Double longitude = dSnapshot.child("latLng").getValue(LatLng.class).longitude;
+                    String latLngString = dSnapshot.child("latLng").getValue(String.class);
+
+                    //En el siguiente activity obtendremos el latLng así:
+                    //String[] latLngSplitted = latLngString.split(",");
+                    //LatLng latLng = new LatLng(Double.parseDouble(latLngSplitted[0]),Double.parseDouble(latLngSplitted[1]));
+
+
+                    Date date = dSnapshot.child("date").getValue(Date.class);
+                    dateString = dSnapshot.child("dateString").getValue(String.class);
+                    timeString = dSnapshot.child("timeString").getValue(String.class);
+                    Integer seats = dSnapshot.child("seats").getValue(Integer.class);
+                    Integer cost = dSnapshot.child("cost").getValue(Integer.class);
+                    Boolean isActive = dSnapshot.child("active").getValue(Boolean.class);
+                    tripId = dSnapshot.getKey();
+                    //userID: userID ya fue buscado anteriormente.
+
+                    //set text views
+                    addressTextView.setText(address);
+                    dateTextView.setText(dateString);
+                    timeTextView.setText(timeString);
+
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        //        final ListView tripListView = (ListView) findViewById(R.id.trip_list_view);
+//        final ArrayList<Trip> tripList = new ArrayList<>();
+//
+//        //PARA OBTENER LOS PAST SE NECESITA HACER QUERY A TODOS!! (value event listener con un ciclo for dentro)
+//        //query firebase trip data
+//        Query query1 = user_trips.child(userID)
+//                .orderByChild("address")
+//                .equalTo("calle San Martin, Miraflores, Perú");
+//        query1.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                //Recorrer todos los nodos y filtrar los que tengan un campo buscado.
+//                for(DataSnapshot dSnapshot : dataSnapshot.getChildren()) {
+//                    //Obtain all data of this trip.
+//                    String address = dSnapshot.child("address").getValue(String.class);
+////                    Double latitude = dSnapshot.child("latLng").getValue(LatLng.class).latitude;
+////                    Double longitude = dSnapshot.child("latLng").getValue(LatLng.class).longitude;
+//                    String latLngString = dSnapshot.child("latLng").getValue(String.class);
+
+        //En el siguiente activity obtendremos el latLng así:
+//                    String[] latLngSplitted = latLngString.split(",");
+//                    LatLng latLng = new LatLng(Double.parseDouble(latLngSplitted[0]),Double.parseDouble(latLngSplitted[1]));
+
+
+//                    Date date = dSnapshot.child("date").getValue(Date.class);
+//                    String dateString = dSnapshot.child("dateString").getValue(String.class);
+//                    String timeString = dSnapshot.child("timeString").getValue(String.class);
+//                    Integer seats = dSnapshot.child("seats").getValue(Integer.class);
+//                    Integer cost = dSnapshot.child("cost").getValue(Integer.class);
+//                    Boolean isActive = dSnapshot.child("active").getValue(Boolean.class);
+//                    String tripId = dSnapshot.getKey();
+//                    Log.d(TAG, "onDataChange: TRIPD ID: " + tripId);
+//                    Log.d(TAG, "onDataChange: LATITUDE, LONGITUDE: " + latLngString.split(","));
+//                    //userID: userID ya fue buscado anteriormente.
+//
+        //Setear al List SOLO LOS FALSE:
+        //if(isActive = false){
+        //                    tripList.add(new Trip(address, latLngString, date, dateString,
+        //                            timeString, seats, cost, isActive, tripId, userID));
+        //                    final TripAdapter tripAdapter = new TripAdapter(TripHistoryActivity.this, R.layout.trip_list_item, tripList);
+        //                    tripListView.setAdapter(tripAdapter);
+        //}
+//
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
 
     }
 
@@ -147,7 +269,7 @@ public class HomeActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_my_trips) {
-            startActivity(new Intent(HomeActivity.this, MyTripsActivity.class));
+            startActivity(new Intent(HomeActivity.this, TripHistoryActivity.class));
 
         } else if (id == R.id.nav_requests){
             startActivity(new Intent(HomeActivity.this, RequestsActivity.class));
@@ -176,6 +298,7 @@ public class HomeActivity extends AppCompatActivity
     protected void onPostResume() {
         super.onPostResume();
         getUserMode();
+
         Log.d(TAG, "onPostResume: USER MODE " +userMode);
     }
 }

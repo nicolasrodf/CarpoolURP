@@ -11,18 +11,20 @@ import java.util.Date;
 public class Trip {
 
     private String address;
-    private LatLng latLng;
+    private String latLng;
     private Date date;
     private String dateString;
     private String timeString;
     private Integer seats;
     private Integer cost;
     private boolean isActive;
+    private String trip_id;
+    private String user_id;
 
     public Trip() {
     }
 
-    public Trip(String address, LatLng latLng, Date date, String dateString, String timeString, Integer seats, Integer cost, boolean isActive) {
+    public Trip(String address, String latLng, Date date, String dateString, String timeString, Integer seats, Integer cost, boolean isActive, String trip_id, String user_id) {
         this.address = address;
         this.latLng = latLng;
         this.date = date;
@@ -31,6 +33,8 @@ public class Trip {
         this.seats = seats;
         this.cost = cost;
         this.isActive = isActive;
+        this.trip_id = trip_id;
+        this.user_id = user_id;
     }
 
     public String getAddress() {
@@ -41,11 +45,11 @@ public class Trip {
         this.address = address;
     }
 
-    public LatLng getLatLng() {
+    public String getLatLng() {
         return latLng;
     }
 
-    public void setLatLng(LatLng latLng) {
+    public void setLatLng(String latLng) {
         this.latLng = latLng;
     }
 
@@ -95,5 +99,21 @@ public class Trip {
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+
+    public String getTrip_id() {
+        return trip_id;
+    }
+
+    public void setTrip_id(String trip_id) {
+        this.trip_id = trip_id;
+    }
+
+    public String getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(String user_id) {
+        this.user_id = user_id;
     }
 }
