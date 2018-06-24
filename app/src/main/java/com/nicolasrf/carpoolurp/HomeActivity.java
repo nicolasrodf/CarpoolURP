@@ -25,6 +25,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.nicolasrf.carpoolurp.Common.Common;
 import com.nicolasrf.carpoolurp.model.User;
+import com.nicolasrf.carpoolurp.utils.Utils;
 
 import java.util.Date;
 
@@ -282,13 +283,16 @@ public class HomeActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_my_trips) {
-            startActivity(new Intent(HomeActivity.this, TripHistoryActivity.class));
+            if(Utils.isNetworkAvailable(getApplicationContext()))
+                startActivity(new Intent(HomeActivity.this, TripHistoryActivity.class));
 
         } else if (id == R.id.nav_requests){
-            startActivity(new Intent(HomeActivity.this, RequestsActivity.class));
+            if(Utils.isNetworkAvailable(getApplicationContext()))
+                startActivity(new Intent(HomeActivity.this, RequestsActivity.class));
 
         } else if (id == R.id.nav_profile) {
-            startActivity(new Intent(HomeActivity.this, ProfileActivity.class));
+            if(Utils.isNetworkAvailable(getApplicationContext()))
+                startActivity(new Intent(HomeActivity.this, ProfileActivity.class));
 
         } else if (id == R.id.nav_sign_out) {
             signOut();

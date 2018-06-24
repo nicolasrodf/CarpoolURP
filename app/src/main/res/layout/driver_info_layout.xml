@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -24,6 +25,7 @@
             android:id="@+id/car_brand_text_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:enabled="false"
             android:hint="Marca de Auto"
             android:imeOptions="actionNext"
             android:inputType="text"
@@ -42,6 +44,7 @@
             android:id="@+id/car_model_text_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:enabled="false"
             android:hint="Modelo"
             android:imeOptions="actionNext"
             android:inputType="text"
@@ -60,6 +63,7 @@
             android:id="@+id/car_color_text_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:enabled="false"
             android:hint="Color"
             android:imeOptions="actionNext"
             android:inputType="text"
@@ -78,6 +82,7 @@
             android:id="@+id/car_license_text_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:enabled="false"
             android:hint="Placa"
             android:imeOptions="actionNext"
             android:inputType="text"
@@ -85,15 +90,22 @@
 
     </android.support.design.widget.TextInputLayout>
 
+
+
     <ProgressBar
         android:id="@+id/car_progress_bar"
         android:layout_width="100dp"
         android:layout_height="100dp"
+        android:layout_gravity="center"
         android:visibility="invisible"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+
+
+
 
 
 

@@ -310,59 +310,64 @@ public class CreateTripActivity extends AppCompatActivity implements TimePickerF
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
 
-                        //Validar campos vacios
-                        if(placeAddress!=null && latLng !=null && !TextUtils.isEmpty(dateTextView.getText())
-                                && !TextUtils.isEmpty(timeTextView.getText())
-                                && numberOfSeatsSpinner!=null && travelCostSpinner!=null) {
+                        if(Utils.isNetworkAvailable(getBaseContext())) {
 
-                            //Estos dos campos se deben calcular dentro del boton. se seleccionan de cada spinner y se convierten a numerico.
-                            numberOfSeatSelected = numberOfSeatsSpinner.getSelectedItem().toString();
-                            numericNumberOfSeats = Utils.numberOfSeatsToNumeric(numberOfSeatSelected);
-                            travelCostSelected = travelCostSpinner.getSelectedItem().toString();
-                            numericTravelCost = Utils.travelCostToNumeric(travelCostSelected);
+                            //Validar campos vacios
+                            if (placeAddress != null && latLng != null && !TextUtils.isEmpty(dateTextView.getText())
+                                    && !TextUtils.isEmpty(timeTextView.getText())
+                                    && numberOfSeatsSpinner != null && travelCostSpinner != null) {
 
-                            dateDataGregorian = new GregorianCalendar(localYear, localMonth, localDay, localHour, localMinute).getTime();
+                                //Estos dos campos se deben calcular dentro del boton. se seleccionan de cada spinner y se convierten a numerico.
+                                numberOfSeatSelected = numberOfSeatsSpinner.getSelectedItem().toString();
+                                numericNumberOfSeats = Utils.numberOfSeatsToNumeric(numberOfSeatSelected);
+                                travelCostSelected = travelCostSpinner.getSelectedItem().toString();
+                                numericTravelCost = Utils.travelCostToNumeric(travelCostSelected);
 
-                            String newTripKey = trips.push().getKey(); //generate unique key for this trip.
+                                dateDataGregorian = new GregorianCalendar(localYear, localMonth, localDay, localHour, localMinute).getTime();
 
-                            Trip trip = new Trip();
-                            trip.setAddress(placeAddress);
-                            trip.setLatLng(latLng);
-                            trip.setDate(dateDataGregorian);
-                            trip.setDateString(updatedDateStringFormat);
-                            trip.setTimeString(updatedTimeData);
-                            trip.setSeats(numericNumberOfSeats);
-                            trip.setCost(numericTravelCost);
-                            trip.setActive(true); //iniciar viaje como active.
-                            trip.setTrip_id(newTripKey);
-                            trip.setUser_id(userID);
+                                String newTripKey = trips.push().getKey(); //generate unique key for this trip.
 
-                            //Se pondrá cada viaje dentro del nodo trips
-                            trips.child(newTripKey)
-                                    .setValue(trip);
-                            //Cuando seteo el user_trips abro el Toast y el intent hacia home.-
-                            //Y tambien dentro del nodo user_trips
-                            user_trips.child(userID) //dentro del nodo id de usuario;
-                                    .child(newTripKey)
-                                    .setValue(trip)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Toast.makeText(CreateTripActivity.this, "Viaje creado exitosamente!", Toast.LENGTH_SHORT).show();
-                                            //ir a ver el viaje.-
-                                            Intent intent = new Intent(CreateTripActivity.this, HomeActivity.class);
-                                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                            startActivity(intent);
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Toast.makeText(CreateTripActivity.this, "Upload failed.", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
+                                Trip trip = new Trip();
+                                trip.setAddress(placeAddress);
+                                trip.setLatLng(latLng);
+                                trip.setDate(dateDataGregorian);
+                                trip.setDateString(updatedDateStringFormat);
+                                trip.setTimeString(updatedTimeData);
+                                trip.setSeats(numericNumberOfSeats);
+                                trip.setCost(numericTravelCost);
+                                trip.setActive(true); //iniciar viaje como active.
+                                trip.setTrip_id(newTripKey);
+                                trip.setUser_id(userID);
+
+                                //Se pondrá cada viaje dentro del nodo trips
+                                trips.child(newTripKey)
+                                        .setValue(trip);
+                                //Cuando seteo el user_trips abro el Toast y el intent hacia home.-
+                                //Y tambien dentro del nodo user_trips
+                                user_trips.child(userID) //dentro del nodo id de usuario;
+                                        .child(newTripKey)
+                                        .setValue(trip)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Toast.makeText(CreateTripActivity.this, "Viaje creado exitosamente!", Toast.LENGTH_SHORT).show();
+                                                //ir a ver el viaje.-
+                                                Intent intent = new Intent(CreateTripActivity.this, HomeActivity.class);
+                                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                                startActivity(intent);
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(CreateTripActivity.this, "Upload failed.", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                            } else {
+                                Toast.makeText(CreateTripActivity.this, "Tiene campos vacíos.", Toast.LENGTH_SHORT).show();
+                            }
                         } else {
-                            Toast.makeText(CreateTripActivity.this, "Tiene campos vacíos.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(CreateTripActivity.this, "No internet connection available.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -389,6 +394,7 @@ public class CreateTripActivity extends AppCompatActivity implements TimePickerF
 
             }
         });
+
 
     }
 

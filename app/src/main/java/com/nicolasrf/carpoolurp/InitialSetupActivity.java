@@ -32,6 +32,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.nicolasrf.carpoolurp.utils.Utils;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -98,8 +99,12 @@ public class InitialSetupActivity extends AppCompatActivity {
         setupInfoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setupUserInformation();
-                uploadImageToStorage();
+                if(Utils.isNetworkAvailable(getBaseContext())) {
+                    setupUserInformation();
+                    uploadImageToStorage();
+                } else {
+                    Toast.makeText(InitialSetupActivity.this, "No Internet connection. Please connect.", Toast.LENGTH_SHORT).show();
+                }
 
             }
         });
@@ -163,6 +168,7 @@ public class InitialSetupActivity extends AppCompatActivity {
 
                 final ProgressDialog mDialog = new ProgressDialog(this);
                 mDialog.setMessage("Uploading...");
+                mDialog.setCancelable(false);
                 mDialog.show();
 
                 final String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
