@@ -75,6 +75,7 @@ public class CreateTripActivity extends AppCompatActivity implements TimePickerF
     int numericNumberOfSeats;
     int numericTravelCost;
     Date dateDataGregorian;
+    Date currentDateGregorian;
     String updatedTimeData;
     String updatedDateStringFormat;
     String numberOfSeatSelected;
@@ -106,7 +107,7 @@ public class CreateTripActivity extends AppCompatActivity implements TimePickerF
 
     FirebaseDatabase database;
     DatabaseReference trips;
-    DatabaseReference user_trips;
+    DatabaseReference driver_trips;
 
     int localDay, localMonth, localYear, localHour, localMinute; //for add in gregorian calendar.-
 
@@ -139,7 +140,8 @@ public class CreateTripActivity extends AppCompatActivity implements TimePickerF
     //finaliza dialogo
     @Override
     public void onFinishDialog(java.util.Date date) {
-        Toast.makeText(this, "Selected Date :"+ Utils.formatDate(date), Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "onFinishDialog: Selected Date (DATE) " + date);
+        Toast.makeText(this, "Selected format Date :"+ Utils.formatDate(date), Toast.LENGTH_SHORT).show();
     }
 
     //finaliza dialogo
@@ -175,7 +177,7 @@ public class CreateTripActivity extends AppCompatActivity implements TimePickerF
         //init firebase database
         database = FirebaseDatabase.getInstance();
         trips = database.getReference("trips");
-        user_trips = database.getReference("user_trips");
+        driver_trips = database.getReference("driver_trips");
 
         //Show search address fragment
         final PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
@@ -324,6 +326,7 @@ public class CreateTripActivity extends AppCompatActivity implements TimePickerF
                                 numericTravelCost = Utils.travelCostToNumeric(travelCostSelected);
 
                                 dateDataGregorian = new GregorianCalendar(localYear, localMonth, localDay, localHour, localMinute).getTime();
+                                currentDateGregorian = Utils.getDateGregorian();
 
                                 String newTripKey = trips.push().getKey(); //generate unique key for this trip.
 
@@ -338,13 +341,15 @@ public class CreateTripActivity extends AppCompatActivity implements TimePickerF
                                 trip.setActive(true); //iniciar viaje como active.
                                 trip.setTrip_id(newTripKey);
                                 trip.setUser_id(userID);
+                                trip.setDate_created(currentDateGregorian);
+                                //los requests se agregan con un SET cuando el rider solicite el viaje
 
                                 //Se pondrá cada viaje dentro del nodo trips
                                 trips.child(newTripKey)
                                         .setValue(trip);
-                                //Cuando seteo el user_trips abro el Toast y el intent hacia home.-
-                                //Y tambien dentro del nodo user_trips
-                                user_trips.child(userID) //dentro del nodo id de usuario;
+                                //Cuando seteo el driver_trips abro el Toast y el intent hacia home.-
+                                //Y tambien dentro del nodo driver_trips
+                                driver_trips.child(userID) //dentro del nodo id de usuario;
                                         .child(newTripKey)
                                         .setValue(trip)
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {

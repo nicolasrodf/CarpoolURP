@@ -37,10 +37,22 @@ public class HomeActivity extends AppCompatActivity
     FirebaseDatabase database;
     DatabaseReference users, user_trips;
 
-    String userMode;
+    //String userMode;
     String address, dateString, timeString, tripId;
 
     NavigationView navigationView;
+
+    //Widgets
+    TextView addressTextView;
+    TextView dateTextView;
+    TextView timeTextView;
+    TextView noTripMessageTextView;
+    LinearLayout activeTripLinearLayout;
+    Button createTripButton;
+
+    Intent profileIntent;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,10 +66,16 @@ public class HomeActivity extends AppCompatActivity
         users = database.getReference("users");
         user_trips = database.getReference("user_trips");
 
-        //Get user mode
-        getUserMode();
+        addressTextView = findViewById(R.id.address_text_view);
+        dateTextView = findViewById(R.id.date_text_view);
+        timeTextView = findViewById(R.id.time_text_view);
+        noTripMessageTextView = findViewById(R.id.no_active_trip_text_view);
+        activeTripLinearLayout = findViewById(R.id.active_trip_linear_layout);
+        createTripButton = findViewById(R.id.create_trip_button);
 
-        final Button createTripButton = findViewById(R.id.create_trip_button);
+        //Get user mode
+        getUserModeAndActiveTrip();
+
         createTripButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -65,24 +83,6 @@ public class HomeActivity extends AppCompatActivity
             }
         });
 
-        //Navi Drawer init
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-        //VIEW ACTIVE TRIP.-
-
-        final TextView addressTextView = findViewById(R.id.address_text_view);
-        final TextView dateTextView = findViewById(R.id.date_text_view);
-        final TextView timeTextView = findViewById(R.id.time_text_view);
-        final TextView noTripMessageTextView = findViewById(R.id.no_active_trip_text_view);
-
-        final LinearLayout activeTripLinearLayout = findViewById(R.id.active_trip_linear_layout);
         activeTripLinearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -96,62 +96,106 @@ public class HomeActivity extends AppCompatActivity
             }
         });
 
-        final String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        //query firebase trip data
-        Query query = user_trips.child(userID)
-                .orderByChild("active")
-                .equalTo(true);
-        query.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+        //Navi Drawer init
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
 
-                if (dataSnapshot.exists()) {
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
-                    //Recorrer los nodos aunque tendremos solo un viaje activo siempre.
-                    for (DataSnapshot dSnapshot : dataSnapshot.getChildren()) {
+    }
 
-                        address = dSnapshot.child("address").getValue(String.class);
+    private void getUserModeAndActiveTrip() {
+        //Get user mode
+        users.child(mAuth.getCurrentUser().getUid())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        User user = dataSnapshot.getValue(User.class);
+                        String userMode = user.getUserMode();
+                        Common.currentUser.setUserMode(userMode); //Asigno al objet User
+                        Log.d(TAG, "onDataChange: USER MODE: " +userMode);
+                        //Hide or show Request Navigation Item
+                        hideOrShowRequestItem();
+
+                        //Check active trips if user is driver.
+                        if(userMode.equals("driver")) {
+
+                            final String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                            //query firebase trip data
+                            Query query = user_trips.child(userID)
+                                    .orderByChild("active")
+                                    .equalTo(true);
+                            query.addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                    if (dataSnapshot.exists()) {
+
+                                        //Recorrer los nodos aunque tendremos solo un viaje activo siempre.
+                                        for (DataSnapshot dSnapshot : dataSnapshot.getChildren()) {
+
+                                            address = dSnapshot.child("address").getValue(String.class);
 //                    Double latitude = dSnapshot.child("latLng").getValue(LatLng.class).latitude;
 //                    Double longitude = dSnapshot.child("latLng").getValue(LatLng.class).longitude;
-                        String latLngString = dSnapshot.child("latLng").getValue(String.class);
+                                            String latLngString = dSnapshot.child("latLng").getValue(String.class);
 
-                        //En el siguiente activity obtendremos el latLng así:
-                        //String[] latLngSplitted = latLngString.split(",");
-                        //LatLng latLng = new LatLng(Double.parseDouble(latLngSplitted[0]),Double.parseDouble(latLngSplitted[1]));
+                                            //En el siguiente activity obtendremos el latLng así:
+                                            //String[] latLngSplitted = latLngString.split(",");
+                                            //LatLng latLng = new LatLng(Double.parseDouble(latLngSplitted[0]),Double.parseDouble(latLngSplitted[1]));
 
 
-                        Date date = dSnapshot.child("date").getValue(Date.class);
-                        dateString = dSnapshot.child("dateString").getValue(String.class);
-                        timeString = dSnapshot.child("timeString").getValue(String.class);
-                        Integer seats = dSnapshot.child("seats").getValue(Integer.class);
-                        Integer cost = dSnapshot.child("cost").getValue(Integer.class);
-                        Boolean isActive = dSnapshot.child("active").getValue(Boolean.class);
-                        tripId = dSnapshot.getKey();
-                        //userID: userID ya fue buscado anteriormente.
+                                            Date date = dSnapshot.child("date").getValue(Date.class);
+                                            dateString = dSnapshot.child("dateString").getValue(String.class);
+                                            timeString = dSnapshot.child("timeString").getValue(String.class);
+                                            Integer seats = dSnapshot.child("seats").getValue(Integer.class);
+                                            Integer cost = dSnapshot.child("cost").getValue(Integer.class);
+                                            Boolean isActive = dSnapshot.child("active").getValue(Boolean.class);
+                                            tripId = dSnapshot.getKey();
+                                            //userID: userID ya fue buscado anteriormente.
 
-                        //set text views
-                        addressTextView.setText(address);
-                        dateTextView.setText(dateString);
-                        timeTextView.setText(timeString);
+                                            //set text views
+                                            addressTextView.setText(address);
+                                            dateTextView.setText(dateString);
+                                            timeTextView.setText(timeString);
 
+                                        }
+
+                                    } else {
+
+                                        activeTripLinearLayout.setVisibility(View.GONE);
+                                        noTripMessageTextView.setVisibility(View.VISIBLE);
+                                        noTripMessageTextView.setText("No tiene viaje creado." + "\n"
+                                                + "Para crear un nuevo viaje, presione el botón 'Crear Viaje'");
+                                        createTripButton.setVisibility(View.VISIBLE);
+
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+
+                        } else {
+
+                            //Si es driver entonces
+                            //Mostrar los viajes disponibles en su Red.
+                            addressTextView.setText("TODO: MOSTRAR LISTA DE VIAJES DISPONIBLES");
+                        }
                     }
 
-                } else {
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
 
-                    activeTripLinearLayout.setVisibility(View.GONE);
-                    noTripMessageTextView.setVisibility(View.VISIBLE);
-                    noTripMessageTextView.setText("No tiene viaje creado." + "\n"
-                            + "Para crear un nuevo viaje, presione el botón 'Crear Viaje'");
-                    createTripButton.setVisibility(View.VISIBLE);
+                    }
+                });
 
-                }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
 
         //        final ListView tripListView = (ListView) findViewById(R.id.trip_list_view);
 //        final ArrayList<Trip> tripList = new ArrayList<>();
@@ -205,27 +249,6 @@ public class HomeActivity extends AppCompatActivity
 //            }
 //        });
 
-    }
-
-    private void getUserMode() {
-        users.child(mAuth.getCurrentUser().getUid())
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        User user = dataSnapshot.getValue(User.class);
-                        userMode = user.getUserMode();
-                        Common.currentUser.setUserMode(userMode); //Asigno al objet User
-                        Log.d(TAG, "onDataChange: USER MODE: " +userMode);
-
-                        //Hide or show Request Navigation Item
-                        hideOrShowRequestItem();
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
     }
 
     private void hideOrShowRequestItem() {
@@ -284,15 +307,22 @@ public class HomeActivity extends AppCompatActivity
 
         if (id == R.id.nav_my_trips) {
             if(Utils.isNetworkAvailable(getApplicationContext()))
-                startActivity(new Intent(HomeActivity.this, TripHistoryActivity.class));
+                startActivity(new Intent(HomeActivity.this, DriverTripsActivity.class));
 
         } else if (id == R.id.nav_requests){
             if(Utils.isNetworkAvailable(getApplicationContext()))
                 startActivity(new Intent(HomeActivity.this, RequestsActivity.class));
 
         } else if (id == R.id.nav_profile) {
-            if(Utils.isNetworkAvailable(getApplicationContext()))
+            if (Utils.isNetworkAvailable(getApplicationContext()))
+                //primero cerrar el activity
+//                profileIntent = new Intent(HomeActivity.this, ProfileActivity.class);
+//                profileIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(new Intent(HomeActivity.this, ProfileActivity.class));
+
+        }else if (id == R.id.nav_trips_test) {
+                if(Utils.isNetworkAvailable(getApplicationContext()))
+                    startActivity(new Intent(HomeActivity.this, RiderDashboardTestActivity.class));
 
         } else if (id == R.id.nav_sign_out) {
             signOut();
@@ -306,16 +336,14 @@ public class HomeActivity extends AppCompatActivity
     private void signOut() {
         mAuth.signOut();
         Intent intent = new Intent(HomeActivity.this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); //Cerrar todos los activities.
         startActivity(intent);
     }
 
-    //Todo. Problema al volver desde Profile no actualiza el user mode.-
     @Override
-    protected void onPostResume() {
-        super.onPostResume();
-        getUserMode();
-
-        Log.d(TAG, "onPostResume: USER MODE " +userMode);
+    protected void onResume() {
+        super.onResume();
+        getUserModeAndActiveTrip();
+        //Log.d(TAG, "onPostResume: USER MODE " +userMode);
     }
 }

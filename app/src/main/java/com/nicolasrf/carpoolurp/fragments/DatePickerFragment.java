@@ -41,7 +41,7 @@ public class DatePickerFragment extends DialogFragment {
                                 int year = datePicker.getYear();
                                 int mon = datePicker.getMonth();
                                 int day = datePicker.getDayOfMonth();
-                                Date date = new GregorianCalendar(year,mon,day).getTime();
+                                Date date = new GregorianCalendar(year,mon,day).getTime(); //creo q esto esta demas?? pq se crea en el activity.
                                 DateDialogListener activity = (DateDialogListener) getActivity();
                                 activity.onFinishDialog(date);
                                 dismiss();

@@ -4,19 +4,30 @@ import android.app.Dialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * Created by Nicolas on 12/06/2018.
  */
 
 public class Utils {
+
+    public static Date getDateGregorian(){
+        TimeZone timeZone = TimeZone.getDefault();
+        Date dateGregorian = new GregorianCalendar(timeZone).getTime();
+        return dateGregorian;
+    }
 
     //**************Date and Time***************
 

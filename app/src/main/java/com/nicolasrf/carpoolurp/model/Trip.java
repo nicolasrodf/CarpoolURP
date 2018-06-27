@@ -1,10 +1,13 @@
 package com.nicolasrf.carpoolurp.model;
 
+import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.Date;
+import java.util.List;
 
+@SuppressLint("ParcelCreator")
 public class Trip implements Parcelable {
 
     private String address;
@@ -17,11 +20,13 @@ public class Trip implements Parcelable {
     private boolean isActive;
     private String trip_id;
     private String user_id;
+    private Date date_created;
+    private List<Request> requests;
 
     public Trip() {
     }
 
-    public Trip(String address, String latLng, Date date, String dateString, String timeString, Integer seats, Integer cost, boolean isActive, String trip_id, String user_id) {
+    public Trip(String address, String latLng, Date date, String dateString, String timeString, Integer seats, Integer cost, boolean isActive, String trip_id, String user_id, Date date_created) {
         this.address = address;
         this.latLng = latLng;
         this.date = date;
@@ -32,7 +37,55 @@ public class Trip implements Parcelable {
         this.isActive = isActive;
         this.trip_id = trip_id;
         this.user_id = user_id;
+        this.date_created = date_created;
     }
+
+    public Trip(String address, String latLng, Date date, String dateString, String timeString, Integer seats, Integer cost, boolean isActive, String trip_id, String user_id, Date date_created, List<Request> requests) {
+        this.address = address;
+        this.latLng = latLng;
+        this.date = date;
+        this.dateString = dateString;
+        this.timeString = timeString;
+        this.seats = seats;
+        this.cost = cost;
+        this.isActive = isActive;
+        this.trip_id = trip_id;
+        this.user_id = user_id;
+        this.date_created = date_created;
+        this.requests = requests;
+    }
+
+    protected Trip(Parcel in) {
+        address = in.readString();
+        latLng = in.readString();
+        dateString = in.readString();
+        timeString = in.readString();
+        if (in.readByte() == 0) {
+            seats = null;
+        } else {
+            seats = in.readInt();
+        }
+        if (in.readByte() == 0) {
+            cost = null;
+        } else {
+            cost = in.readInt();
+        }
+        isActive = in.readByte() != 0;
+        trip_id = in.readString();
+        user_id = in.readString();
+    }
+
+    public static final Creator<Trip> CREATOR = new Creator<Trip>() {
+        @Override
+        public Trip createFromParcel(Parcel in) {
+            return new Trip(in);
+        }
+
+        @Override
+        public Trip[] newArray(int size) {
+            return new Trip[size];
+        }
+    };
 
     public String getAddress() {
         return address;
@@ -114,18 +167,20 @@ public class Trip implements Parcelable {
         this.user_id = user_id;
     }
 
-    protected Trip(Parcel in) {
-        address = in.readString();
-        latLng = in.readString();
-        long tmpDate = in.readLong();
-        date = tmpDate != -1 ? new Date(tmpDate) : null;
-        dateString = in.readString();
-        timeString = in.readString();
-        seats = in.readByte() == 0x00 ? null : in.readInt();
-        cost = in.readByte() == 0x00 ? null : in.readInt();
-        isActive = in.readByte() != 0x00;
-        trip_id = in.readString();
-        user_id = in.readString();
+    public Date getDate_created() {
+        return date_created;
+    }
+
+    public void setDate_created(Date date_created) {
+        this.date_created = date_created;
+    }
+
+    public List<Request> getRequests() {
+        return requests;
+    }
+
+    public void setRequests(List<Request> requests) {
+        this.requests = requests;
     }
 
     @Override
@@ -134,39 +189,25 @@ public class Trip implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(address);
-        dest.writeString(latLng);
-        dest.writeLong(date != null ? date.getTime() : -1L);
-        dest.writeString(dateString);
-        dest.writeString(timeString);
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(address);
+        parcel.writeString(latLng);
+        parcel.writeString(dateString);
+        parcel.writeString(timeString);
         if (seats == null) {
-            dest.writeByte((byte) (0x00));
+            parcel.writeByte((byte) 0);
         } else {
-            dest.writeByte((byte) (0x01));
-            dest.writeInt(seats);
+            parcel.writeByte((byte) 1);
+            parcel.writeInt(seats);
         }
         if (cost == null) {
-            dest.writeByte((byte) (0x00));
+            parcel.writeByte((byte) 0);
         } else {
-            dest.writeByte((byte) (0x01));
-            dest.writeInt(cost);
+            parcel.writeByte((byte) 1);
+            parcel.writeInt(cost);
         }
-        dest.writeByte((byte) (isActive ? 0x01 : 0x00));
-        dest.writeString(trip_id);
-        dest.writeString(user_id);
+        parcel.writeByte((byte) (isActive ? 1 : 0));
+        parcel.writeString(trip_id);
+        parcel.writeString(user_id);
     }
-
-    @SuppressWarnings("unused")
-    public static final Parcelable.Creator<Trip> CREATOR = new Parcelable.Creator<Trip>() {
-        @Override
-        public Trip createFromParcel(Parcel in) {
-            return new Trip(in);
-        }
-
-        @Override
-        public Trip[] newArray(int size) {
-            return new Trip[size];
-        }
-    };
 }

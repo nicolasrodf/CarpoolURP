@@ -605,4 +605,11 @@ public class ProfileActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent profileIntent = new Intent(ProfileActivity.this, HomeActivity.class);
+        profileIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); //hace que profile activity aunque esté abierto se abra como un nuevo activity. y El resto de activities pasan al TOP.
+        startActivity(profileIntent);
+    }
 }

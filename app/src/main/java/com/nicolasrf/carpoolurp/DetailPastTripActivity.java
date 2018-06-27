@@ -2,10 +2,13 @@ package com.nicolasrf.carpoolurp;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.nicolasrf.carpoolurp.model.Request;
 import com.nicolasrf.carpoolurp.model.Trip;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DetailPastTripActivity extends AppCompatActivity {
 
@@ -17,9 +20,13 @@ public class DetailPastTripActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail_past_trip);
 
         Bundle extras = getIntent().getExtras();
-        trip = extras.getParcelable(TripHistoryActivity.SELECTED_TRIP);
+        trip = extras.getParcelable(DriverTripsActivity.SELECTED_TRIP);
+        String address = trip.getAddress();
+        //List<Request> requests = trip.getRequests();
 
-        Toast.makeText(this, trip.getAddress(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, address, Toast.LENGTH_SHORT).show();
+        //oast.makeText(this, "size " + requests.size(), Toast.LENGTH_SHORT).show();
+
 
 //        TextView startAddressTextView = (TextView) findViewById(R.id.startAddressTextView);
 //        TextView endAddressTextView = (TextView) findViewById(R.id.destinationAddressTextView);

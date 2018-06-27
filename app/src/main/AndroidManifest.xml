@@ -63,11 +63,13 @@
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />
         <activity android:name=".CreatePickupPointsActivity" />
-        <activity android:name=".TripHistoryActivity" />
+        <activity android:name=".DriverTripsActivity" />
         <activity android:name=".RequestsActivity" />
         <activity android:name=".ProfileActivity" />
         <activity android:name=".DetailActiveTripActivity" />
-        <activity android:name=".DetailPastTripActivity"></activity>
+        <activity android:name=".DetailPastTripActivity" />
+        <activity android:name=".RiderDashboardTestActivity" />
+        <activity android:name=".DetailTripActivity"></activity>
     </application>
 
 </manifest>

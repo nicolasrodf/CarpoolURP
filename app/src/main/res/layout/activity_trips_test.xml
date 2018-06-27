@@ -3,7 +3,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.nicolasrf.carpoolurp.DriverTripsActivity"
+    tools:context="com.nicolasrf.carpoolurp.RiderDashboardTestActivity"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <android.support.v7.widget.Toolbar
@@ -19,5 +19,3 @@
         android:layout_height="wrap_content"/>
 
 </RelativeLayout>
-
-

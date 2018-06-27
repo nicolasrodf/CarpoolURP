@@ -31,7 +31,7 @@ public class CreatePickupPointsActivity extends AppCompatActivity {
 
         //init firebase database
         database = FirebaseDatabase.getInstance();
-        trips = database.getReference("user_trips");
+        trips = database.getReference("driver_trips");
 
         mAuth = FirebaseAuth.getInstance();
         String user_id = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -73,7 +73,7 @@ public class CreatePickupPointsActivity extends AppCompatActivity {
 //        trip.setActive(true); //iniciar viaje como active.
 //
 //        //Se pondrá cada viaje dentro del nodo trip -> usuario.
-//        user_trips.child(user_id) //nodo user_id
+//        driver_trips.child(user_id) //nodo user_id
 //                .push() //get unique key for trip
 //                .setValue(trip)
 //                .addOnSuccessListener(new OnSuccessListener<Void>() {
