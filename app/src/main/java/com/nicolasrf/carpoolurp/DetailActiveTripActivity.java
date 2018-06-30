@@ -1,23 +1,31 @@
 package com.nicolasrf.carpoolurp;
 
 import android.content.Intent;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.nicolasrf.carpoolurp.model.Request;
+import com.nicolasrf.carpoolurp.model.Trip;
 import com.nicolasrf.carpoolurp.utils.FirebaseMethods;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DetailActiveTripActivity extends AppCompatActivity {
     private static final String TAG = "DetailActiveTripActivit";
 
     FirebaseDatabase database;
     DatabaseReference driver_trips, trips;
+    Trip trip;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,14 +42,19 @@ public class DetailActiveTripActivity extends AppCompatActivity {
         final TextView timeTextView = findViewById(R.id.time_text_view);
 
         Bundle extras = getIntent().getExtras();
-        String address = extras.getString("address");
-        String dateString = extras.getString("dateString");
-        String timeString = extras.getString("timeString");
-        final String tripId = extras.getString("tripId");
+        trip = extras.getParcelable("trip");
+        String address = trip.getAddress();
+        String dateString = trip.getDateString();
+        String timeString = trip.getTimeString();
+        String latLngString = trip.getLatLng();
+        final String tripId = trip.getTrip_id();
+        List<Request> requestList = trip.getRequests();
 
         Log.d(TAG, "onCreate: ADDRESS: "+address);
         Log.d(TAG, "onCreate: DATE: "+dateString);
         Log.d(TAG, "onCreate: TIME: "+timeString);
+        Log.d(TAG, "onCreate: LATLMG: "+latLngString);
+        Log.d(TAG, "onCreate: LIST : "+requestList.size());
 
         //set text views
         addressTextView.setText(address);

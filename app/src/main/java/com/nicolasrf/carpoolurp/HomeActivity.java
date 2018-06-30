@@ -2,6 +2,7 @@ package com.nicolasrf.carpoolurp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -24,9 +25,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.nicolasrf.carpoolurp.Common.Common;
+import com.nicolasrf.carpoolurp.model.Request;
+import com.nicolasrf.carpoolurp.model.Trip;
 import com.nicolasrf.carpoolurp.model.User;
 import com.nicolasrf.carpoolurp.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 public class HomeActivity extends AppCompatActivity
@@ -35,10 +39,7 @@ public class HomeActivity extends AppCompatActivity
 
     FirebaseAuth mAuth;
     FirebaseDatabase database;
-    DatabaseReference users, user_trips;
-
-    //String userMode;
-    String address, dateString, timeString, tripId;
+    DatabaseReference users, driver_trips;
 
     NavigationView navigationView;
 
@@ -52,6 +53,8 @@ public class HomeActivity extends AppCompatActivity
 
     Intent profileIntent;
 
+    Trip trip;
+
 
 
     @Override
@@ -64,7 +67,7 @@ public class HomeActivity extends AppCompatActivity
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         users = database.getReference("users");
-        user_trips = database.getReference("user_trips");
+        driver_trips = database.getReference("driver_trips");
 
         addressTextView = findViewById(R.id.address_text_view);
         dateTextView = findViewById(R.id.date_text_view);
@@ -88,10 +91,14 @@ public class HomeActivity extends AppCompatActivity
             public void onClick(View v) {
                 //pass data to next activity
                 Intent intent = new Intent(HomeActivity.this, DetailActiveTripActivity.class);
-                intent.putExtra("address", address);
-                intent.putExtra("dateString", dateString);
-                intent.putExtra("timeString", timeString);
-                intent.putExtra("tripId", tripId);
+//                intent.putExtra("address", address);
+//                intent.putExtra("dateString", dateString);
+//                intent.putExtra("timeString", timeString);
+//                intent.putExtra("tripId", tripId);
+                Bundle bundle = new Bundle();
+                //bundle.putParcelableArrayList("request", (ArrayList<? extends Parcelable>)  requests);
+                bundle.putParcelable("trip", trip);
+                intent.putExtras(bundle);
                 startActivity(intent);
             }
         });
@@ -126,7 +133,7 @@ public class HomeActivity extends AppCompatActivity
 
                             final String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
                             //query firebase trip data
-                            Query query = user_trips.child(userID)
+                            Query query = driver_trips.child(userID)
                                     .orderByChild("active")
                                     .equalTo(true);
                             query.addValueEventListener(new ValueEventListener() {
@@ -136,31 +143,44 @@ public class HomeActivity extends AppCompatActivity
                                     if (dataSnapshot.exists()) {
 
                                         //Recorrer los nodos aunque tendremos solo un viaje activo siempre.
-                                        for (DataSnapshot dSnapshot : dataSnapshot.getChildren()) {
+                                        for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
 
-                                            address = dSnapshot.child("address").getValue(String.class);
-//                    Double latitude = dSnapshot.child("latLng").getValue(LatLng.class).latitude;
-//                    Double longitude = dSnapshot.child("latLng").getValue(LatLng.class).longitude;
-                                            String latLngString = dSnapshot.child("latLng").getValue(String.class);
+                                            String address = singleSnapshot.child("address").getValue(String.class);
+//                    Double latitude = singleSnapshot.child("latLng").getValue(LatLng.class).latitude;
+//                    Double longitude = singleSnapshot.child("latLng").getValue(LatLng.class).longitude;
+                                            String latLngString = singleSnapshot.child("latLng").getValue(String.class);
 
                                             //En el siguiente activity obtendremos el latLng así:
                                             //String[] latLngSplitted = latLngString.split(",");
                                             //LatLng latLng = new LatLng(Double.parseDouble(latLngSplitted[0]),Double.parseDouble(latLngSplitted[1]));
 
 
-                                            Date date = dSnapshot.child("date").getValue(Date.class);
-                                            dateString = dSnapshot.child("dateString").getValue(String.class);
-                                            timeString = dSnapshot.child("timeString").getValue(String.class);
-                                            Integer seats = dSnapshot.child("seats").getValue(Integer.class);
-                                            Integer cost = dSnapshot.child("cost").getValue(Integer.class);
-                                            Boolean isActive = dSnapshot.child("active").getValue(Boolean.class);
-                                            tripId = dSnapshot.getKey();
+                                            Date date = singleSnapshot.child("date").getValue(Date.class);
+                                            String dateString = singleSnapshot.child("dateString").getValue(String.class);
+                                            String timeString = singleSnapshot.child("timeString").getValue(String.class);
+                                            Integer seats = singleSnapshot.child("seats").getValue(Integer.class);
+                                            Integer cost = singleSnapshot.child("cost").getValue(Integer.class);
+                                            Boolean isActive = singleSnapshot.child("active").getValue(Boolean.class);
+                                            Date dateCreated = singleSnapshot.child("date_created").getValue(Date.class); //Get DateGregorian (date created)
+                                            String tripId = singleSnapshot.getKey();
                                             //userID: userID ya fue buscado anteriormente.
 
                                             //set text views
                                             addressTextView.setText(address);
                                             dateTextView.setText(dateString);
                                             timeTextView.setText(timeString);
+
+                                            ArrayList<Request> requests = new ArrayList<>();
+                                            for (DataSnapshot dSnapshot : singleSnapshot.child("requests").getChildren()){
+                                                Request request = new Request();
+                                                request.setUser_id(dSnapshot.getValue(Request.class).getUser_id()); //solo me sirve el userId-
+                                                requests.add(request);
+                                            }
+
+                                            trip = new Trip(address, latLngString, date, dateString,
+                                                    timeString, seats, cost, isActive, tripId, userID, dateCreated, requests);
+
+                                            Log.d(TAG, "onDataChange: REQUESTS TRIP SIZE " + requests.size());
 
                                         }
 
@@ -202,7 +222,7 @@ public class HomeActivity extends AppCompatActivity
 //
 //        //PARA OBTENER LOS PAST SE NECESITA HACER QUERY A TODOS!! (value event listener con un ciclo for dentro)
 //        //query firebase trip data
-//        Query query1 = user_trips.child(userID)
+//        Query query1 = driver_trips.child(userID)
 //                .orderByChild("address")
 //                .equalTo("calle San Martin, Miraflores, Perú");
 //        query1.addListenerForSingleValueEvent(new ValueEventListener() {

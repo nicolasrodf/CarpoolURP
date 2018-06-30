@@ -22,10 +22,10 @@ public class DetailPastTripActivity extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         trip = extras.getParcelable(DriverTripsActivity.SELECTED_TRIP);
         String address = trip.getAddress();
-        //List<Request> requests = trip.getRequests();
+        List<Request> requests = trip.getRequests();
 
         Toast.makeText(this, address, Toast.LENGTH_SHORT).show();
-        //oast.makeText(this, "size " + requests.size(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "size " + requests.size(), Toast.LENGTH_SHORT).show();
 
 
 //        TextView startAddressTextView = (TextView) findViewById(R.id.startAddressTextView);
