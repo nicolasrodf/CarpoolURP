@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -206,6 +207,48 @@ public class CreateTripActivity extends AppCompatActivity implements TimePickerF
             public void onError(Status status) {
                 Log.i(TAG, "An error occurred: " + status);
                 Toast.makeText(CreateTripActivity.this, "An error an ocurred", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        //Set Info Text about get Location
+        ImageView infoImageButton = findViewById(R.id.info_image_button);
+        infoImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                final AlertDialog.Builder dialog = new AlertDialog.Builder(CreateTripActivity.this)
+                        .setTitle("Info")
+                        .setMessage("Presiona sobre el ícono negro para utilizar tu ubicación actual como dirección de salida");
+                dialog.setPositiveButton("Entendido", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        dialog.dismiss();
+                    }
+                });
+                final AlertDialog alert = dialog.create();
+                alert.show();
+
+                // Hide after some seconds
+                final Handler handler  = new Handler();
+                final Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (alert.isShowing()) {
+                            alert.dismiss();
+                        }
+                    }
+                };
+
+                alert.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        handler.removeCallbacks(runnable);
+                    }
+                });
+
+                handler.postDelayed(runnable, 4000);
+
+
             }
         });
 

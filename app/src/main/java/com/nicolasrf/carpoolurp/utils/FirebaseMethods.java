@@ -10,8 +10,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.storage.FirebaseStorage;
-import com.nicolasrf.carpoolurp.DetailActiveTripActivity;
 
 /**
  * Created by Nicolas on 22/06/2018.
@@ -22,7 +20,7 @@ public class FirebaseMethods {
 
     private FirebaseAuth mAuth;
     FirebaseDatabase database;
-    DatabaseReference user_trips, trips;
+    DatabaseReference driver_trips, trips;
 
     private String userID;
 
@@ -31,7 +29,7 @@ public class FirebaseMethods {
     public FirebaseMethods(Context context) {
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
-        user_trips = database.getReference("user_trips");
+        driver_trips = database.getReference("driver_trips");
         trips = database.getReference("trips");
         //mStorageReference = FirebaseStorage.getInstance().getReference();
         mContext = context;
@@ -60,9 +58,9 @@ public class FirebaseMethods {
                         }
                     });
         }
-        //remove in user_trips node
+        //remove in driver_trips node
         if(tripId != null && userID != null) {
-            user_trips.child(userID)
+            driver_trips.child(userID)
                     .child(tripId)
                     .removeValue()
                     .addOnFailureListener(new OnFailureListener() {
@@ -85,11 +83,12 @@ public class FirebaseMethods {
         }
 
         if(tripId != null && userID != null){
-            //set active value false in user_trips node
-            user_trips.child(userID)
+            //set active value false in driver_trips node
+            driver_trips.child(userID)
                     .child(tripId)
                     .child("active")
                     .setValue(false);
         }
     }
+
 }

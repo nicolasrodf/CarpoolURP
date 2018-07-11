@@ -68,7 +68,7 @@ public class RiderDashboardTestActivity extends AppCompatActivity {
                     Integer cost = dSnapshot.child("cost").getValue(Integer.class);
                     Boolean isActive = dSnapshot.child("active").getValue(Boolean.class);
                     String tripId = dSnapshot.getKey();
-                    String user_id = dSnapshot.child("user_id").getValue(String.class);
+                    String driver_id = dSnapshot.child("user_id").getValue(String.class);
                     Date dateCreated = dSnapshot.child("date_created").getValue(Date.class); //Get DateGregorian (date created)
                     //FALTARIAN DESCARGAR LOS REQUESTS?? Y SI NO LOS HAY???
                     Log.d("Rider dash", "onDataChange: TRIPD ID: " + tripId);
@@ -76,10 +76,10 @@ public class RiderDashboardTestActivity extends AppCompatActivity {
                     //userID: userID ya fue buscado anteriormente.
 
                     //Setear al List SOLO LOS distintos al user actual:
-                    if(!user_id.equals(userID)){
+                    if(!driver_id.equals(userID)){
 
                         tripList.add(new Trip(address, latLngString, date, dateString,
-                                timeString, seats, cost, isActive, tripId, userID, dateCreated));
+                                timeString, seats, cost, isActive, tripId, driver_id, dateCreated));
                         final TripAdapter tripAdapter = new TripAdapter(RiderDashboardTestActivity.this, R.layout.trip_list_item, tripList);
                         tripListView.setAdapter(tripAdapter);
                         tripListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
