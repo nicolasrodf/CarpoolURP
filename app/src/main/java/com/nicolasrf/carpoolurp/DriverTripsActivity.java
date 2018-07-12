@@ -28,7 +28,7 @@ public class DriverTripsActivity extends AppCompatActivity {
     public final static String SELECTED_TRIP = "selected_trip"; //llave
 
     FirebaseDatabase database;
-    DatabaseReference user_trips;
+    DatabaseReference driver_trips;
     private Trip mTrip;
     String address, dateString, timeString, tripId;
 
@@ -54,7 +54,7 @@ public class DriverTripsActivity extends AppCompatActivity {
 //        });
 
         database = FirebaseDatabase.getInstance();
-        user_trips = database.getReference("driver_trips");
+        driver_trips = database.getReference("driver_trips");
 
         final String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
@@ -63,7 +63,7 @@ public class DriverTripsActivity extends AppCompatActivity {
 
         //PARA OBTENER LOS PAST SE NECESITA HACER QUERY A TODOS!! (value event listener con un ciclo for dentro)
         //query firebase trip data
-        Query query = user_trips.child(userID)
+        Query query = driver_trips.child(userID)
                 .orderByChild("active")
                 .equalTo(false);
 //                .orderByChild("address")

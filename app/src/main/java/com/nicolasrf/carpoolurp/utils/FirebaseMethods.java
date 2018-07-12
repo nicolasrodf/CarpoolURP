@@ -10,6 +10,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.nicolasrf.carpoolurp.DetailTripActivity;
+import com.nicolasrf.carpoolurp.model.Request;
 
 /**
  * Created by Nicolas on 22/06/2018.
@@ -88,6 +90,30 @@ public class FirebaseMethods {
                     .child(tripId)
                     .child("active")
                     .setValue(false);
+        }
+    }
+
+    public void sendRequest(String tripId, String requestKey, Request request, String driverId){
+
+        if(tripId!=null && requestKey!=null && request!=null) {
+            trips.child(tripId)
+                    .child("requests")
+                    .child(requestKey)
+                    .setValue(request)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(mContext, "Request sent.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
+        //
+        if(tripId!=null && requestKey!=null && request!=null && driverId!=null) {
+            driver_trips.child(driverId)
+                    .child(tripId)
+                    .child("requests")
+                    .child(requestKey)
+                    .setValue(request);
         }
     }
 

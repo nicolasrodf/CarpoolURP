@@ -204,8 +204,17 @@ public class HomeActivity extends AppCompatActivity
                         } else {
 
                             //Si es driver entonces
-                            //Mostrar los viajes disponibles en su Red.
-                            addressTextView.setText("TODO: MOSTRAR LISTA DE VIAJES DISPONIBLES");
+                            //Mostrar viaje solicitado.
+                            //1. Check if have trip requested.
+
+                                //If yes, show trip requested.
+
+
+                                //If no, show all trips
+                                //Mostrar los viajes disponibles en su Red.???
+                                addressTextView.setText("TODO: MOSTRAR LISTA DE VIAJES DISPONIBLES");
+
+                            //2.
                         }
                     }
 
