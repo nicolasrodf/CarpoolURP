@@ -71,9 +71,10 @@ public class DetailTripActivity extends AppCompatActivity {
 
                             for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
 
-                                if( singleSnapshot.child("requests").exists()) {
+                                if(singleSnapshot.child("requests").exists()) {
 
                                     for (DataSnapshot dSnapshot : singleSnapshot.child("requests").getChildren()) {
+
                                         if (!dSnapshot.getValue(Request.class).getUser_id().equals(user_id)) {
                                             //Hacer el request.
                                             String newRequestKey = trips.child(tripId).child("requests").push().getKey(); //generate unique key for this request.
@@ -88,22 +89,6 @@ public class DetailTripActivity extends AppCompatActivity {
                                             firebaseMethods.sendRequest(tripId,newRequestKey,request,null); //to trips node
                                             firebaseMethods.sendRequest(tripId,newRequestKey,request,driver_id);//to driver_trips node
 
-//                                            trips.child(tripId)
-//                                                    .child("requests")
-//                                                    .child(newRequestKey)
-//                                                    .setValue(request)
-//                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                                                        @Override
-//                                                        public void onSuccess(Void aVoid) {
-//                                                            Toast.makeText(DetailTripActivity.this, "Request sent.", Toast.LENGTH_SHORT).show();
-//                                                        }
-//                                                    });
-//                                            //
-//                                            driver_trips.child(driver_id)
-//                                                    .child(tripId)
-//                                                    .child("requests")
-//                                                    .child(newRequestKey)
-//                                                    .setValue(request);
                                         } else {
                                             Toast.makeText(DetailTripActivity.this, "Ya ha solicitado el viaje.", Toast.LENGTH_SHORT).show();
                                         }

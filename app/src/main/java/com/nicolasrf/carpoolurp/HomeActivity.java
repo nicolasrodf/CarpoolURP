@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -28,6 +29,7 @@ import com.nicolasrf.carpoolurp.Common.Common;
 import com.nicolasrf.carpoolurp.model.Request;
 import com.nicolasrf.carpoolurp.model.Trip;
 import com.nicolasrf.carpoolurp.model.User;
+import com.nicolasrf.carpoolurp.utils.FirebaseMethods;
 import com.nicolasrf.carpoolurp.utils.Utils;
 
 import java.util.ArrayList;
@@ -39,7 +41,7 @@ public class HomeActivity extends AppCompatActivity
 
     FirebaseAuth mAuth;
     FirebaseDatabase database;
-    DatabaseReference users, driver_trips;
+    DatabaseReference users, driver_trips, trips;
 
     NavigationView navigationView;
 
@@ -68,6 +70,7 @@ public class HomeActivity extends AppCompatActivity
         database = FirebaseDatabase.getInstance();
         users = database.getReference("users");
         driver_trips = database.getReference("driver_trips");
+        trips = database.getReference("trips");
 
         addressTextView = findViewById(R.id.address_text_view);
         dateTextView = findViewById(R.id.date_text_view);
@@ -116,12 +119,14 @@ public class HomeActivity extends AppCompatActivity
     }
 
     private void getUserModeAndActiveTrip() {
+
+        final String user_id = mAuth.getCurrentUser().getUid();
         //Get user mode
-        users.child(mAuth.getCurrentUser().getUid())
+        users.child(user_id)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        User user = dataSnapshot.getValue(User.class);
+                        final User user = dataSnapshot.getValue(User.class);
                         String userMode = user.getUserMode();
                         Common.currentUser.setUserMode(userMode); //Asigno al objet User
                         Log.d(TAG, "onDataChange: USER MODE: " +userMode);
@@ -203,7 +208,7 @@ public class HomeActivity extends AppCompatActivity
 
                         } else {
 
-                            //Si es driver entonces
+                            //Si es rider entonces
                             //Mostrar viaje solicitado.
                             //1. Check if have trip requested.
 
@@ -212,9 +217,48 @@ public class HomeActivity extends AppCompatActivity
 
                                 //If no, show all trips
                                 //Mostrar los viajes disponibles en su Red.???
-                                addressTextView.setText("TODO: MOSTRAR LISTA DE VIAJES DISPONIBLES");
+                                //addressTextView.setText(" MOSTRAR VIAJE SOLICITADO: ");
 
                             //2.
+
+                            Query query = trips
+                                    .orderByChild("active")
+                                    .equalTo(true);
+                                    query.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                            for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
+
+                                                if(singleSnapshot.child("requests").exists()) {
+
+                                                    for (DataSnapshot dSnapshot : singleSnapshot.child("requests").getChildren()) {
+                                                        if (dSnapshot.getValue(Request.class).getUser_id().equals(user_id)) {
+                                                            //Setear widgets
+                                                           //String address = singleSnapshot.getValue(Trip.class).getAddress();
+                                                            String address = singleSnapshot.child("address").getValue(String.class);
+                                                            addressTextView.setText("TIENE UN VIAJE SOLICITADO: ");
+                                                            dateTextView.setText("ADDRESS: " + address);
+                                                            //Toast.makeText(HomeActivity.this, "Viaje solicitado: "+address, Toast.LENGTH_SHORT).show();
+
+                                                        } else {
+                                                            addressTextView.setText("NO TIENE UN VIAJE SOLICITADO.");
+                                                        }
+
+                                                    }
+                                                } else {
+                                                    Log.d(TAG, "onDataChange: NO HAY REQUESTS");
+                                                }
+
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
+
                         }
                     }
 
